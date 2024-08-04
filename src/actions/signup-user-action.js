@@ -38,8 +38,11 @@ export const signupUserAction = async (values) => {
 
   try {
     const hashedPassword = await argon2.hash(password);
-    const isAdmin =
-      process.env.ADMIN_EMAIL_ADDRESS?.toLowerCase() === email.toLowerCase();
+    const adminEmails = (
+      process.env.ADMIN_EMAIL_ADDRESSES?.toLowerCase() || ""
+    ).split(",");
+
+    const isAdmin = adminEmails.includes(email.toLowerCase());
 
     // Create the new user with the normalized email
     const newUser = await db.user.create({

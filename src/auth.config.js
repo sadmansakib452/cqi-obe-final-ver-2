@@ -3,9 +3,32 @@ import { oauthVerifyEmailAction } from "./actions/oauth-verify-email-action";
 import Google from "next-auth/providers/google";
 import Github from "next-auth/providers/github";
 import { PrismaAdapter } from "@auth/prisma-adapter";
-import { changeUserRoleAction } from "./actions/change-user-role-action";
+// import { changeUserRoleAction } from "./actions/change-user-role-action";
 export const authConfig = {
-  adapter: PrismaAdapter(db),
+  adapter: {
+    ...PrismaAdapter(db),
+    createUser: async (data) => {
+      const { id, ...insertedData } = data; // Destructure to exclude 'id' from the insertion data
+
+      // Retrieve and process the list of admin emails from the environment variable
+      const adminEmails = (
+        process.env.ADMIN_EMAIL_ADDRESSES?.toLowerCase() || ""
+      )
+        .split(",")
+        .map((email) => email.trim()); // Trim spaces to ensure accurate matching
+
+      // Check if the provided email is one of the admin emails
+      const isAdmin = adminEmails.includes(insertedData.email.toLowerCase());
+
+      // Assign the role based on admin status
+      insertedData.role = isAdmin ? "admin" : "user";
+
+      // Create the user with the modified data (without the original 'id' and with the assigned role)
+      return await db.user.create({
+        data: insertedData,
+      });
+    },
+  },
 
   session: { strategy: "jwt" },
   secret: process.env.AUTH_SECRET,
@@ -36,13 +59,19 @@ export const authConfig = {
       }
       if (user?.id) token.id = user.id;
       if (user?.role) token.role = user.role;
-      //updating role
-      if (
-        user?.email &&
-        process.env.ADMIN_EMAIL_ADDRESS?.toLowerCase() === user.email.toLowerCase()
-      ) {
-        token.role = "admin";
+
+      {
+        /**Taking care of the care where an OAuth user 
+        creates An account for the first time and they should be "admin"
+        Fixed by overriding 'createUser' function in Prisma Adapter  */
       }
+      //updating role
+      // if (
+      //   user?.email &&
+      //   process.env.ADMIN_EMAIL_ADDRESS?.toLowerCase() === user.email.toLowerCase()
+      // ) {
+      //   token.role = "admin";
+      // }
 
       return token;
     },
@@ -74,12 +103,12 @@ export const authConfig = {
         if (user.email) await oauthVerifyEmailAction(user.email);
       }
     },
-    async createUser({user}){
-      if(user.email && process.env.ADMIN_EMAIL_ADDRESS?.toLowerCase() === user.email.toLowerCase()){
-        await changeUserRoleAction(user.email, "admin")
-      }
+    // async createUser({user}){
+    //   if(user.email && process.env.ADMIN_EMAIL_ADDRESS?.toLowerCase() === user.email.toLowerCase()){
+    //     await changeUserRoleAction(user.email, "admin")
+    //   }
 
-    },
+    // },
   },
   providers: [
     Google({
