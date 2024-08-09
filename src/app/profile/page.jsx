@@ -1,15 +1,16 @@
+import Link from "next/link";
 import { auth } from "@/auth";
 import SignoutButton from "@/components/signout-button";
 import { Button } from "@/components/ui/button";
 // import { findUserById, findUserByAuth } from "@/resources/user-queries";
-import Link from "next/link";
 import React from "react";
 import { UpdateUserInfoForm } from "./_components/update-user-info-form";
 import { redirect } from "next/navigation";
+import { findAdminUserEmailAddresses } from "@/resources/admin-user-email-address-queries";
 
 const ProfilePage = async () => {
   const session = await auth();
-  if(!session) redirect("/auth/signin")
+  if (!session) redirect("/auth/signin");
 
   //Access user information from database via session user id
   // const sessionUserId = session?.user?.id
@@ -36,7 +37,7 @@ const SignedIn = ({ user }) => {
     <>
       <div className="flex item-center justify-between">
         <h2 className="text-2xl font-bold tracking-tight">User Information</h2>
-        <UpdateUserInfoForm user={user}/>
+        <UpdateUserInfoForm user={user} />
       </div>
       <table className="mt-4 table-auto divide-y">
         <thead>

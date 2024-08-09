@@ -3,6 +3,7 @@ import * as v from "valibot";
 import { SignupSchema } from "@/validators/signup-validator";
 import argon2 from "argon2";
 import db from "../../prisma";
+import { findAdminUserEmailAddresses } from "@/resources/admin-user-email-address-queries";
 
 export const signupUserAction = async (values) => {
   const parsedValues = v.safeParse(SignupSchema, values);
@@ -38,11 +39,13 @@ export const signupUserAction = async (values) => {
 
   try {
     const hashedPassword = await argon2.hash(password);
-    const adminEmails = (
-      process.env.ADMIN_EMAIL_ADDRESSES?.toLowerCase() || ""
-    ).split(",");
 
-    const isAdmin = adminEmails.includes(email.toLowerCase());
+    // const adminEmails = (
+    //   process.env.ADMIN_EMAIL_ADDRESSES?.toLowerCase() || ""
+    // ).split(",");
+
+    const adminEmails = await findAdminUserEmailAddresses()
+    const isAdmin = adminEmails.includes(email.toLowerCase())
 
     // Create the new user with the normalized email
     const newUser = await db.user.create({

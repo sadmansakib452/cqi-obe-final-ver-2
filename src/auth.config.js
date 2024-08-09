@@ -3,6 +3,7 @@ import { oauthVerifyEmailAction } from "./actions/oauth-verify-email-action";
 import Google from "next-auth/providers/google";
 import Github from "next-auth/providers/github";
 import { PrismaAdapter } from "@auth/prisma-adapter";
+import { findAdminUserEmailAddresses } from "./resources/admin-user-email-address-queries";
 // import { changeUserRoleAction } from "./actions/change-user-role-action";
 export const authConfig = {
   adapter: {
@@ -10,12 +11,9 @@ export const authConfig = {
     createUser: async (data) => {
       const { id, ...insertedData } = data; // Destructure to exclude 'id' from the insertion data
 
-      // Retrieve and process the list of admin emails from the environment variable
-      const adminEmails = (
-        process.env.ADMIN_EMAIL_ADDRESSES?.toLowerCase() || ""
-      )
-        .split(",")
-        .map((email) => email.trim()); // Trim spaces to ensure accurate matching
+      // Retrieve and process the list of admin emails from the database
+       const adminEmails = await findAdminUserEmailAddresses();
+       
 
       // Check if the provided email is one of the admin emails
       const isAdmin = adminEmails.includes(insertedData.email.toLowerCase());
@@ -53,7 +51,7 @@ export const authConfig = {
 
       return true;
     },
-    jwt({ token, user, trigger, session }) {
+    async jwt({ token, user, trigger, session }) {
       if (trigger === "update") {
         return { ...token, ...session.user };
       }
