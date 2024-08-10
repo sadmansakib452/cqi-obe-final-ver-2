@@ -7,10 +7,13 @@ import React from "react";
 import { UpdateUserInfoForm } from "./_components/update-user-info-form";
 import { redirect } from "next/navigation";
 import { findAdminUserEmailAddresses } from "@/resources/admin-user-email-address-queries";
+import { LockIcon } from "lucide-react";
 
 const ProfilePage = async () => {
   const session = await auth();
   if (!session) redirect("/auth/signin");
+
+  const isAdmin = session?.user?.role === "admin";
 
   //Access user information from database via session user id
   // const sessionUserId = session?.user?.id
@@ -23,7 +26,10 @@ const ProfilePage = async () => {
   return (
     <main className="mt-4">
       <div className="container">
-        <h1 className="text-3xl font-bold tracking-tight">Profile</h1>
+        <div className="flex items-center justify-between">
+          <h1 className="text-3xl font-bold tracking-tight">Profile</h1>
+          {isAdmin && <AdminPanelButton />}
+        </div>
         <div className="my-4 h-1 bg-muted" />
 
         {!!session?.user ? <SignedIn user={session.user} /> : <SignedOut />}
@@ -77,6 +83,17 @@ const SignedOut = () => {
         <Link href="/auth/signin">Sign In</Link>
       </Button>
     </>
+  );
+};
+
+const AdminPanelButton = () => {
+  return (
+    <Button size="lg" asChild>
+      <Link href="/profile/admin-panel">
+        <LockIcon className="mr-2" />
+        Admin Panel
+      </Link>
+    </Button>
   );
 };
 

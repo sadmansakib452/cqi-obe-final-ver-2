@@ -37,9 +37,10 @@ export const authConfig = {
 
       const isLoggedIn = !!auth?.user;
       const isOnProfile = nextUrl.pathname.startsWith("/profile");
+      const isOnDashboard = nextUrl.pathname.startsWith("/dashboard");
       const isOnAuth = nextUrl.pathname.startsWith("/auth");
 
-      if (isOnProfile) {
+      if (isOnProfile || isOnDashboard) {
         if (isLoggedIn) return true;
         return Response.redirect(new URL("/auth/signin", nextUrl));
       }

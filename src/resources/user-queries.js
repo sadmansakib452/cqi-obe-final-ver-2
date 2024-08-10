@@ -1,7 +1,40 @@
 import "server-only";
 
 import db from "../../prisma";
-// import { auth } from "@/auth";
+import { auth } from "@/auth";
+
+
+/* ADMIN QUERIES - THESE QUERIES REQUIRE ADMIN ACCESS*/
+
+
+export async function findAllUsers() {
+  const session = await auth();
+
+  if (session?.user?.role !== "admin") {
+    throw new Error("Unauthorized");
+  }
+
+  // Fetch all users, excluding the password field
+  const allUsers = await db.user.findMany({
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      emailVerified: true,
+      image: true,
+      role: true,
+      // Exclude the password field
+    },
+    orderBy: {
+      role: "desc", // Order by role in descending order
+    },
+  });
+
+  return allUsers;
+}
+
+
+/*----------------------------------------------------*/
 
 export const findUserByEmail = async (email) => {
   // Ensure the email is in lowercase before querying
