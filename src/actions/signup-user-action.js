@@ -4,6 +4,9 @@ import { SignupSchema } from "@/validators/signup-validator";
 import argon2 from "argon2";
 import db from "../../prisma";
 import { findAdminUserEmailAddresses } from "@/resources/admin-user-email-address-queries";
+import { USER_ROLES } from "@/lib/constants";
+import { createVerificationTokenAction } from "./create-verification-token-action";
+import { sendSignupUserEmail } from "./mail/send-signup-user-email";
 
 export const signupUserAction = async (values) => {
   const parsedValues = v.safeParse(SignupSchema, values);
@@ -24,11 +27,36 @@ export const signupUserAction = async (values) => {
       where: {
         email: normalizedEmail,
       },
+      select: {
+        id: true,
+        email: true,
+        emailVerified: true,
+      },
     });
 
     if (existingUser?.id) {
-      console.log("User already exists with this email.");
-      return { success: false, error: "Email already exists", statusCode: 409 };
+      if (!existingUser.emailVerified) {
+        // Create a verification token if the user is not verified
+        const verificationToken = await createVerificationTokenAction(
+          existingUser.email,
+        );
+
+       await sendSignupUserEmail({
+         email: existingUser.email,
+         token: verificationToken.token,
+       });
+        return {
+          success: false,
+          error: "User exists but not verified. Verification link resent",
+          statusCode: 409,
+        };
+      } else {
+        return {
+          success: false,
+          error: "Email already exists",
+          statusCode: 409,
+        };
+      }
     }
   } catch (error) {
     console.error("Error checking existing user:", error);
@@ -44,19 +72,37 @@ export const signupUserAction = async (values) => {
     //   process.env.ADMIN_EMAIL_ADDRESSES?.toLowerCase() || ""
     // ).split(",");
 
-    const adminEmails = await findAdminUserEmailAddresses()
-    const isAdmin = adminEmails.includes(email.toLowerCase())
+    const adminEmails = await findAdminUserEmailAddresses();
+    const isAdmin = adminEmails.includes(email.toLowerCase());
 
-    // Create the new user with the normalized email
+    // Create the new user
     const newUser = await db.user.create({
       data: {
-        name: name,
-        email: normalizedEmail, // Store the email in lowercase
+        name,
+        email: email.toLowerCase(),
         password: hashedPassword,
-        role: isAdmin ? "admin" : "user",
+        role: isAdmin ? USER_ROLES.ADMIN : USER_ROLES.USER,
+      },
+      select: {
+        id: true,
+        email: true,
+        emailVerified: true,
       },
     });
     console.log({ insertedId: newUser.id }); // Log the ID of the new user
+
+    // Create and send a verification token
+    const verificationToken = await createVerificationTokenAction(
+      newUser.email,
+    );
+
+    console.log(verificationToken)
+
+
+    await sendSignupUserEmail({
+      email: newUser.email,
+      token: verificationToken.token
+    })
 
     return { success: true };
   } catch (error) {

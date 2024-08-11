@@ -2,6 +2,7 @@ import "server-only";
 
 import db from "../../prisma";
 import { auth } from "@/auth";
+import { USER_ROLES } from "@/lib/constants";
 
 
 /* ADMIN QUERIES - THESE QUERIES REQUIRE ADMIN ACCESS*/
@@ -10,7 +11,7 @@ import { auth } from "@/auth";
 export async function findAllUsers() {
   const session = await auth();
 
-  if (session?.user?.role !== "admin") {
+  if (session?.user?.role !== USER_ROLES.ADMIN) {
     throw new Error("Unauthorized");
   }
 

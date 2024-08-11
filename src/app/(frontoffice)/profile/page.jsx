@@ -8,12 +8,14 @@ import { UpdateUserInfoForm } from "./_components/update-user-info-form";
 import { redirect } from "next/navigation";
 import { findAdminUserEmailAddresses } from "@/resources/admin-user-email-address-queries";
 import { LockIcon } from "lucide-react";
+import { USER_ROLES } from "@/lib/constants";
+import { cn } from "@/lib/utils";
 
 const ProfilePage = async () => {
   const session = await auth();
   if (!session) redirect("/auth/signin");
 
-  const isAdmin = session?.user?.role === "admin";
+  const isAdmin = session?.user?.role === USER_ROLES.ADMIN;
 
   //Access user information from database via session user id
   // const sessionUserId = session?.user?.id
@@ -58,7 +60,13 @@ const SignedIn = ({ user }) => {
         <tbody>
           <tr className="divide-x">
             <td className="px-6 py-3">{user.id}</td>
-            <td className="px-6 py-3">{user.name || "NULL"}</td>
+            <td
+              className={cn("px-6 py-3", {
+                "opacity-50": user.name === null,
+              })}
+            >
+              {user.name ?? "NULL"}
+            </td>
             <td className="px-6 py-3">{user.email || "NULL"}</td>
             <td className="px-6 py-3 uppercase">{user.role || "NULL"}</td>
           </tr>

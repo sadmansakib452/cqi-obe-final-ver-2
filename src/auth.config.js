@@ -4,6 +4,7 @@ import Google from "next-auth/providers/google";
 import Github from "next-auth/providers/github";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import { findAdminUserEmailAddresses } from "./resources/admin-user-email-address-queries";
+import { USER_ROLES } from "./lib/constants";
 // import { changeUserRoleAction } from "./actions/change-user-role-action";
 export const authConfig = {
   adapter: {
@@ -19,7 +20,7 @@ export const authConfig = {
       const isAdmin = adminEmails.includes(insertedData.email.toLowerCase());
 
       // Assign the role based on admin status
-      insertedData.role = isAdmin ? "admin" : "user";
+      insertedData.role = isAdmin ? USER_ROLES.ADMIN : USER_ROLES.USER;
 
       // Create the user with the modified data (without the original 'id' and with the assigned role)
       return await db.user.create({
@@ -88,9 +89,9 @@ export const authConfig = {
       }
       if (account?.provider === "credentials") {
         if (user.emailVerified) {
-          //return true
+          return true
         }
-        return true;
+        
       }
       return false;
     },

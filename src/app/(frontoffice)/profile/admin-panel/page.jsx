@@ -7,11 +7,12 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import ToggleEmailVerifiedInput from "./_components/toggle-email-verified-input";
 import ChangeUserRoleInput from "./_components/change-user-role-input";
+import { USER_ROLES } from "@/lib/constants";
 
 export default async function Page() {
   const session = await auth();
 
-  if (session?.user?.role !== "admin") redirect("/profile");
+  if (session?.user?.role !== USER_ROLES.ADMIN) redirect("/profile");
 
   const users = await findAllUsers();
 
@@ -53,7 +54,7 @@ export default async function Page() {
               <tr
                 key={user.id}
                 className={cn("divide-x", {
-                  "bg-primary/15": user.role === "admin",
+                  "bg-primary/15": user.role === USER_ROLES.ADMIN,
                 })}
               >
                 <td className="px-6 py-3">{user.id}</td>
@@ -69,14 +70,14 @@ export default async function Page() {
                   <ToggleEmailVerifiedInput
                     email={user.email}
                     emailVerified={user.emailVerified}
-                    isAdmin={user.role === "admin"}
+                    isAdmin={user.role === USER_ROLES.ADMIN}
                   />
                 </td>
                 <td className="px-6 py-3 uppercase">
                   <ChangeUserRoleInput
                     email={user.email}
                     currentRole={user.role}
-                    isAdmin={user.role === "admin"}
+                    isAdmin={user.role === USER_ROLES.ADMIN}
                   />
                 </td>
               </tr>
