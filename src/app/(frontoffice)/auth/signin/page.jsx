@@ -5,6 +5,7 @@ import Link from "next/link";
 import {
   OAuthSigninButtonsSkeleton,
   OauthSigninButton} from "@/components/oauth-signin-button";
+import ForgotPasswordForm from "./_components/forgot-password-form";
 
 const SignInPage = () => {
   return (
@@ -32,6 +33,9 @@ const SignInPage = () => {
           </Button>{" "}
           to sign up
         </p>
+
+        {/**Forgot password dialog */}
+        <ForgotPasswordForm />
       </div>
     </main>
   );

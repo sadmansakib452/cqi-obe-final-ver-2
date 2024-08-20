@@ -30,7 +30,7 @@ export const SignInForm = () => {
     const res = await signinUserAction(values);
 
     if (res.success) {
-      window.location.href = "/profile"
+      window.location.href = "/dashboard"
     } else {
       switch (res.statusCode) {
         case 401:

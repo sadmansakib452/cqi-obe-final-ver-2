@@ -3,4 +3,4 @@ export const USER_ROLES = {
   ADMIN: "admin",
 };
 
-export const VERIFICATION_TOKEN_EXP_MIN = 1;
+export const VERIFICATION_TOKEN_EXP_MIN = 15;
