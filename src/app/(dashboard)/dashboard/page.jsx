@@ -24,7 +24,9 @@ export default async function DashboardPage() {
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
-      <PlaceholderContent />
+      <PlaceholderContent>
+        <h1 className="font-extrabold">Hello! {session?.user?.name || session?.user?.email}</h1>
+      </PlaceholderContent>
       
     </ContentLayout>
   );
