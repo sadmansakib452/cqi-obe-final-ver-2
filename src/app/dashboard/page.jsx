@@ -1,13 +1,19 @@
 import Link from "next/link";
 
 
+
 import { ContentLayout } from "@/components/admin-panel/content-layout";
 import PlaceholderContent from "@/components/demo/placeholder-content";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
+import { auth } from "@/auth";
+import UnauthorizedPage from "@/components/unauthorized";
 
-export default function PostsPage() {
+export default async function DashboardPage() {
+  const session = await auth();
+
+ 
   return (
-    <ContentLayout title="All Posts">
+    <ContentLayout title="Dashboard">
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>
@@ -17,17 +23,14 @@ export default function PostsPage() {
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
-            <BreadcrumbLink asChild>
-              <Link href="/dashboard">Dashboard</Link>
-            </BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbPage>Posts</BreadcrumbPage>
+            <BreadcrumbPage>Dashboard</BreadcrumbPage>
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
-      <PlaceholderContent />
+      <PlaceholderContent>
+        <h1 className="font-extrabold">Hello! {session?.user?.name || session?.user?.email}</h1>
+      </PlaceholderContent>
+      
     </ContentLayout>
   );
 }

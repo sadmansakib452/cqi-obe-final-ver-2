@@ -1,16 +1,25 @@
 import Link from "next/link";
 
-
-
 import { ContentLayout } from "@/components/admin-panel/content-layout";
 import PlaceholderContent from "@/components/demo/placeholder-content";
-import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
 import { auth } from "@/auth";
+import UnauthorizedPage from "@/components/unauthorized";
 
-export default async function DashboardPage() {
+export default async function CourseFilePage() {
   const session = await auth();
+   if (session?.user?.role !== "admin") {
+     return <UnauthorizedPage />;
+   }
   return (
-    <ContentLayout title="Dashboard">
+    <ContentLayout title="Upload Course File">
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>
@@ -25,9 +34,10 @@ export default async function DashboardPage() {
         </BreadcrumbList>
       </Breadcrumb>
       <PlaceholderContent>
-        <h1 className="font-extrabold">Hello! {session?.user?.name || session?.user?.email}</h1>
+        <h1 className="font-extrabold">
+         Course File page
+        </h1>
       </PlaceholderContent>
-      
     </ContentLayout>
   );
 }

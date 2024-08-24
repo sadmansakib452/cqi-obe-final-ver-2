@@ -4,14 +4,17 @@ import Link from "next/link";
 import { Ellipsis, LogOut } from "lucide-react";
 import { usePathname } from "next/navigation";
 
-
 import { CollapseMenuButton } from "./collapse-menu-button";
 import { Button } from "../ui/button";
 import { ScrollArea } from "../ui/scroll-area";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "../ui/tooltip";
 import { getMenuList } from "@/lib/menu-list";
 import { cn } from "@/lib/utils";
-
 
 export function Menu({ isOpen }) {
   const pathname = usePathname();
@@ -45,7 +48,16 @@ export function Menu({ isOpen }) {
               )}
               {menus.map(
                 ({ href, label, icon: Icon, active, submenus }, index) =>
-                  submenus.length === 0 ? (
+                  submenus && submenus.length > 0 ? (
+                    <CollapseMenuButton
+                      key={index}
+                      icon={Icon}
+                      label={label}
+                      active={active}
+                      submenus={submenus}
+                      isOpen={isOpen}
+                    />
+                  ) : (
                     <div className="w-full" key={index}>
                       <TooltipProvider disableHoverableContent>
                         <Tooltip delayDuration={100}>
@@ -59,14 +71,15 @@ export function Menu({ isOpen }) {
                                 <span
                                   className={cn(isOpen === false ? "" : "mr-4")}
                                 >
-                                  <Icon size={18} />
+                                  <Icon size={18} />{" "}
+                                  {/* Ensure Icon is called here */}
                                 </span>
                                 <p
                                   className={cn(
                                     "max-w-[200px] truncate",
                                     isOpen === false
                                       ? "-translate-x-96 opacity-0"
-                                      : "translate-x-0 opacity-100"
+                                      : "translate-x-0 opacity-100",
                                   )}
                                 >
                                   {label}
@@ -82,17 +95,7 @@ export function Menu({ isOpen }) {
                         </Tooltip>
                       </TooltipProvider>
                     </div>
-                  ) : (
-                    <div className="w-full" key={index}>
-                      <CollapseMenuButton
-                        icon={Icon}
-                        label={label}
-                        active={active}
-                        submenus={submenus}
-                        isOpen={isOpen}
-                      />
-                    </div>
-                  )
+                  ),
               )}
             </li>
           ))}
@@ -111,7 +114,7 @@ export function Menu({ isOpen }) {
                     <p
                       className={cn(
                         "whitespace-nowrap",
-                        isOpen === false ? "opacity-0 hidden" : "opacity-100"
+                        isOpen === false ? "opacity-0 hidden" : "opacity-100",
                       )}
                     >
                       Sign out
