@@ -1,17 +1,19 @@
+
+
 import Link from "next/link";
-
-
-
 import { ContentLayout } from "@/components/admin-panel/content-layout";
 import PlaceholderContent from "@/components/demo/placeholder-content";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
 import { auth } from "@/auth";
 import UnauthorizedPage from "@/components/unauthorized";
+// import { usePathname } from "next/navigation";
+
 
 export default async function DashboardPage() {
   const session = await auth();
 
- 
+  // const pathname = usePathname()
+ console.log('dashboard')
   return (
     <ContentLayout title="Dashboard">
       <Breadcrumb>

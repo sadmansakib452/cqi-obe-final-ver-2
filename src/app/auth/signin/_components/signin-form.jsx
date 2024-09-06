@@ -48,7 +48,7 @@ export const SignInForm = () => {
     <Form {...form}>
       <form
         onSubmit={handleSubmit(submit)}
-        className="space-y-8 max-w-[400px]"
+        className="space-y-3 max-w-[400px]"
         autoComplete="false"
       >
         <FormField

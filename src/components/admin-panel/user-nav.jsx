@@ -9,8 +9,18 @@ import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Button } from "../ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "../ui/dropdown-menu";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip";
+import { signoutUserAction } from "@/actions/signout-user-action";
+import { useRouter } from "next/navigation";
 
 export function UserNav() {
+
+   const router = useRouter();
+
+   const handleSignOut = async () => {
+     await signoutUserAction();
+     router.push("/"); // Redirect to the home page
+    
+    };
   return (
     <DropdownMenu>
       <TooltipProvider disableHoverableContent>
@@ -57,7 +67,10 @@ export function UserNav() {
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
-        <DropdownMenuItem className="hover:cursor-pointer" onClick={() => {}}>
+        <DropdownMenuItem
+          className="hover:cursor-pointer"
+          onClick={handleSignOut}
+        >
           <LogOut className="w-4 h-4 mr-3 text-muted-foreground" />
           Sign out
         </DropdownMenuItem>
