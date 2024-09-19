@@ -66,4 +66,23 @@
   body {
     @apply bg-background text-foreground;
   }
+
+    /* global.css or in your component style */
+    .file-upload-card {
+      border: 1px solid #ddd;
+      padding: 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: box-shadow 0.3s ease;
+    }
+  
+    .file-upload-card:hover {
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+  
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+    }
 }

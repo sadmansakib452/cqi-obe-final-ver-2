@@ -1,3 +1,4 @@
+"use client"
 import Link from "next/link";
 
 import { ContentLayout } from "@/components/admin-panel/content-layout";
@@ -10,14 +11,21 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import { auth } from "@/auth";
-import UnauthorizedPage from "@/components/unauthorized";
+// import { auth } from "@/auth";
 
-export default async function CourseFilePage() {
-  const session = await auth();
-   if (session?.user?.role !== "admin") {
-     return <UnauthorizedPage />;
-   }
+import { useState } from "react";
+
+export default function CourseFilePage() {
+  // const session = await auth();
+  //  if (session?.user?.role !== "admin") {
+  //    return <UnauthorizedPage />;
+  //  }
+
+   const [courseName, setCourseName] = useState("");
+
+   const handleCourseNameSubmit = (name) => {
+     setCourseName(name);
+   };
   return (
     <ContentLayout title="Upload Course File">
       <Breadcrumb>
@@ -34,9 +42,7 @@ export default async function CourseFilePage() {
         </BreadcrumbList>
       </Breadcrumb>
       <PlaceholderContent>
-        <h1 className="font-extrabold">
-         Course File page
-        </h1>
+        
       </PlaceholderContent>
     </ContentLayout>
   );
