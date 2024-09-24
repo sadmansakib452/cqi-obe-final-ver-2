@@ -1,36 +1,38 @@
-// src/app/dashboard/upload-course-file/_components/FileUploadCard.js
-import { useState } from "react";
-import FileUploadDialog from "./FileUploadDialog";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"; // Ensure correct imports for Card sub-components
+// src/components/ui/FileUploadCard.js
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardContent,
+  CardFooter,
+} from "@/components/ui/card";
+import { UploadCloud } from "lucide-react"; // Icons for feedback
 
-export default function FileUploadCard({ courseFileName, label, type }) {
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-
-  // Toggle dialog open/close state
-  const toggleDialog = () => setIsDialogOpen(!isDialogOpen);
-
+export default function FileUploadCard({
+  courseFileName,
+  label,
+  description,
+  onClick,
+}) {
   return (
     <div>
-      {/* Card to represent each file upload option */}
       <Card
-        className="hover:cursor-pointer hover:bg-gray-100"
-        onClick={toggleDialog}
+        className="p-4 border hover:cursor-pointer hover:bg-gray-100 transition-all"
+        onClick={onClick}
       >
         <CardHeader>
-          <CardTitle>{label}</CardTitle>
+          <CardTitle className="text-md font-semibold">{label}</CardTitle>
         </CardHeader>
-        <CardContent>Click to upload {label}</CardContent>
+        <CardContent>
+          <p className="text-sm text-gray-500">{description}</p>
+        </CardContent>
+        <CardFooter>
+          <div className="flex items-center text-blue-500">
+            <UploadCloud size={20} className="mr-2" />
+            <span>Click to upload</span>
+          </div>
+        </CardFooter>
       </Card>
-
-      {/* Show dialog when card is clicked */}
-      {isDialogOpen && (
-        <FileUploadDialog
-          courseFileName={courseFileName}
-          label={label}
-          type={type}
-          closeDialog={toggleDialog}
-        />
-      )}
     </div>
   );
 }
