@@ -1,9 +1,6 @@
-// src/app/dashboard/upload-course-file/page.jsx
-
-"use client";
+'use client'
 import Link from "next/link";
 import { ContentLayout } from "@/components/admin-panel/content-layout";
-import PlaceholderContent from "@/components/demo/placeholder-content";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -15,16 +12,21 @@ import {
 import { useEffect, useState } from "react";
 import CourseFileForm from "./_components/CourseFileForm";
 import FileUploadCard from "./_components/FileUploadCard"; // Use the card for each document
-import Step1Dialog from "./_components/Step1Dialog"; // Dialog for step 1 (PDF)
-import Step2Dialog from "./_components/Step2Dialog"; // Dialog for step 2 (Text)
+import Step1Dialog from "./_components/Step1Dialog";
+import Step2Dialog from "./_components/Step2Dialog";
 import Step3Dialog from "./_components/Step3Dialog";
+import Step4Dialog from "./_components/Step4Dialog";
+import Step5Dialog from "./_components/Step5Dialog";
+import Step6Dialog from "./_components/Step6Dialog";
+import Step7Dialog from "./_components/Step7Dialog";
+import Step8Dialog from "./_components/Step8Dialog";
+import Step9Dialog from "./_components/Step9Dialog";
 
 export default function CourseFilePage() {
   const [courseFileName, setCourseFileName] = useState("");
   const [isCourseCreated, setIsCourseCreated] = useState(false);
-  const [currentDialog, setCurrentDialog] = useState(null); // To track which dialog is open
+  const [currentDialog, setCurrentDialog] = useState(null);
 
-  // Check if the course name exists in localStorage
   useEffect(() => {
     const savedCourseFileName = localStorage.getItem("courseFileName");
     if (savedCourseFileName) {
@@ -33,7 +35,6 @@ export default function CourseFilePage() {
     }
   }, []);
 
-  // Handle course file name submission
   const handleCourseFileSubmit = async (data) => {
     const res = await fetch("/api/course/create", {
       method: "POST",
@@ -52,29 +53,24 @@ export default function CourseFilePage() {
     }
   };
 
-  // Handle "Continue to Current Course File" button click
   const handleContinueToUpload = () => {
-    setIsCourseCreated(true); // Take the user back to the course file upload state
+    setIsCourseCreated(true);
   };
 
-  // Function to handle clearing the session and course file name
   const handleClearSession = () => {
     localStorage.removeItem("courseFileName");
     setCourseFileName("");
     setIsCourseCreated(false);
   };
 
-  // Function to handle going back to the course file form (but keep the file name)
   const handleGoBack = () => {
-    setIsCourseCreated(false); // Return to the course file name form
+    setIsCourseCreated(false);
   };
 
-  // Function to handle opening a specific dialog based on the step
   const openDialog = (step) => {
     setCurrentDialog(step);
   };
 
-  // Function to close the currently open dialog
   const closeDialog = () => {
     setCurrentDialog(null);
   };
@@ -95,91 +91,155 @@ export default function CourseFilePage() {
         </BreadcrumbList>
       </Breadcrumb>
 
-      <PlaceholderContent>
+      <div className="bg-gray-50 py-8 min-h-screen">
         <div className="container mx-auto p-4">
-          {/* Display Header only if course is created */}
           {isCourseCreated && (
-            <div className="flex justify-between items-center mb-4">
+            <div className="flex justify-between items-center mb-6">
               <div className="flex items-center space-x-4">
-                {/* Back Button */}
                 <button
-                  onClick={handleGoBack} // Go back to the course file name creation form
-                  className="bg-gray-200 text-gray-700 text-sm px-4 py-2 rounded-md"
+                  onClick={handleGoBack}
+                  className="bg-gray-200 text-gray-800 text-sm px-4 py-2 rounded-md hover:bg-gray-300 transition"
                 >
-                  Back
+                  <i className="fas fa-arrow-left mr-2"></i> Back
                 </button>
 
-                {/* Display Course File Name */}
-                <h2 className="text-sm font-semibold">
-                  Course File: {courseFileName}
+                <h2 className="text-xl font-bold text-blue-600">
+                  Course File:{" "}
+                  <span className="text-blue-700">{courseFileName}</span>
                 </h2>
               </div>
 
-              {/* Cancel / Clear Session Button */}
               <button
                 onClick={handleClearSession}
-                className="bg-red-500 text-white px-4 py-2 rounded-md text-sm"
+                className="bg-red-500 text-white px-4 py-2 rounded-md text-sm hover:bg-red-600 transition"
               >
-                Cancel Upload
+                <i className="fas fa-times mr-2"></i> Cancel Upload
               </button>
             </div>
           )}
 
-          {/* Show form to create course file if it's not created */}
           {!isCourseCreated ? (
             <CourseFileForm
               onSubmit={handleCourseFileSubmit}
-              defaultCourseFileName={courseFileName} // Pass course file name as prop
-              showContinueButton={Boolean(courseFileName)} // Show the "Continue" button if a session exists
-              onContinue={handleContinueToUpload} // Function to continue to the upload page
+              defaultCourseFileName={courseFileName}
+              showContinueButton={Boolean(courseFileName)}
+              onContinue={handleContinueToUpload}
             />
           ) : (
-            <div className="grid grid-cols-2 gap-4">
-              {/* Step 1 - Upload PDF */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <FileUploadCard
                 courseFileName={courseFileName}
                 label="1. Final grades of the students (Tabulation Sheet)"
                 description="Upload PDF for Final Grades"
-                onClick={() => openDialog("step1")} // Open Step 1 dialog
+                onClick={() => openDialog("step1")}
               />
-              {/* Step 2 - Upload Text */}
               <FileUploadCard
                 courseFileName={courseFileName}
-                label="2. Summary of the OBE Sheet (Analysis of Grade Distribution, CO Attainment, PO Attainment, and CQI - plan for Course Improvement"
-                description="Upload instructor feedback form as text"
-                onClick={() => openDialog("step2")} // Open Step 2 dialog
+                label="2. Summary of the OBE Sheet"
+                description="Upload text for summary"
+                onClick={() => openDialog("step2")}
               />
-
-              {/* Step 3 - Course Outline Upload */}
               <FileUploadCard
                 courseFileName={courseFileName}
                 label="3. Instructor Feedback"
                 description="Upload PDF or fill out form"
-                onClick={() => openDialog("step3")} // Open Step 3 dialog
+                onClick={() => openDialog("step3")}
+              />
+              <FileUploadCard
+                courseFileName={courseFileName}
+                label="4. Course Outline"
+                description="Upload PDF or fill out form"
+                onClick={() => openDialog("step4")}
+              />
+              <FileUploadCard
+                courseFileName={courseFileName}
+                label="5. Mid Exam Question and Answer Scripts"
+                description="Upload PDF or fill out form"
+                onClick={() => openDialog("step5")}
+              />
+              <FileUploadCard
+                courseFileName={courseFileName}
+                label="6. Quiz Exam Question and Answer Scripts"
+                description="Upload PDF or fill out form"
+                onClick={() => openDialog("step6")}
+              />
+              <FileUploadCard
+                courseFileName={courseFileName}
+                label="7. Final Exam Question and Answer Scripts"
+                description="Upload PDF or fill out form"
+                onClick={() => openDialog("step7")}
+              />
+              <FileUploadCard
+                courseFileName={courseFileName}
+                label="8. List of projects/assignments with description"
+                description="Upload PDF file"
+                onClick={() => openDialog("step8")}
+              />
+              <FileUploadCard
+                courseFileName={courseFileName}
+                label="9. List of lab experiments"
+                description="Upload PDF file"
+                onClick={() => openDialog("step9")}
               />
             </div>
           )}
         </div>
-      </PlaceholderContent>
+      </div>
 
-      {/* Render Step 1 Dialog (PDF) */}
       {currentDialog === "step1" && (
         <Step1Dialog
           courseFileName={courseFileName}
           closeDialog={closeDialog}
         />
       )}
-
-      {/* Render Step 2 Dialog (Text) */}
       {currentDialog === "step2" && (
         <Step2Dialog
           courseFileName={courseFileName}
           closeDialog={closeDialog}
         />
       )}
-
-      {/* Render Step 3 Dialog (PDF or Form) */}
-      {currentDialog === "step3" && <Step3Dialog courseFileName={courseFileName} closeDialog={closeDialog} />}
+      {currentDialog === "step3" && (
+        <Step3Dialog
+          courseFileName={courseFileName}
+          closeDialog={closeDialog}
+        />
+      )}
+      {currentDialog === "step4" && (
+        <Step4Dialog
+          courseFileName={courseFileName}
+          closeDialog={closeDialog}
+        />
+      )}
+      {currentDialog === "step5" && (
+        <Step5Dialog
+          courseFileName={courseFileName}
+          closeDialog={closeDialog}
+        />
+      )}
+      {currentDialog === "step6" && (
+        <Step6Dialog
+          courseFileName={courseFileName}
+          closeDialog={closeDialog}
+        />
+      )}
+      {currentDialog === "step7" && (
+        <Step7Dialog
+          courseFileName={courseFileName}
+          closeDialog={closeDialog}
+        />
+      )}
+      {currentDialog === "step8" && (
+        <Step8Dialog
+          courseFileName={courseFileName}
+          closeDialog={closeDialog}
+        />
+      )}
+      {currentDialog === "step9" && (
+        <Step9Dialog
+          courseFileName={courseFileName}
+          closeDialog={closeDialog}
+        />
+      )}
     </ContentLayout>
   );
 }

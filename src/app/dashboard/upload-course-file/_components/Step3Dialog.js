@@ -1,4 +1,3 @@
-// src/app/dashboard/upload-course-file/_components/Step3Dialog.js
 import { useState } from "react";
 import { useForm, FormProvider, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -18,13 +17,20 @@ export default function Step3Dialog({ courseFileName, closeDialog }) {
   const [uploadStatus, setUploadStatus] = useState(null);
   const [isPdfUpload, setIsPdfUpload] = useState(true); // Toggle between PDF and Form
 
-  // Initialize react-hook-form with Yup validation for Step 3
+  // Initialize react-hook-form with Yup validation for Step 3 and `mode: "onBlur"`
   const methods = useForm({
     resolver: yupResolver(step3Schema),
-    defaultValues: { courseFileName, file: null },
+    mode: "onBlur", // Trigger validation onBlur and during submission
+    reValidateMode: "onChange", // Optional: validates on change for continuous feedback
+    defaultValues: { courseFileName, file: null, form_data: "" },
   });
 
-  const { handleSubmit, setValue, watch } = methods;
+  const {
+    handleSubmit,
+    setValue,
+    watch,
+    formState: { errors },
+  } = methods; // Access formState to get errors
   const uploadedFile = watch("file");
 
   // PDF renaming logic
@@ -44,20 +50,14 @@ export default function Step3Dialog({ courseFileName, closeDialog }) {
   const onSubmit = async (data) => {
     const formData = new FormData();
 
-    // Check if the user is uploading a PDF
     if (isPdfUpload && data.file) {
       renameFile(); // Rename file before sending
       formData.append("file", data.file[0]); // Append renamed file
-      formData.append("fileType", "Instructor-Feedback");
-    }
-    // Handle form data submission
-    else if (!isPdfUpload) {
-      // Ensure form data is passed correctly
-      const formJsonData = JSON.stringify({
-        ...data, // Include all form data (non-null fields only)
-      });
+      formData.append("fileType", "INSTRUCTOR-FEEDBACK");
+    } else if (!isPdfUpload) {
+      const formJsonData = JSON.stringify(data); // Convert form data to JSON
       formData.append("text", formJsonData); // Append JSON data
-      formData.append("fileType", "Instructor-Feedback");
+      formData.append("fileType", "INSTRUCTOR-FEEDBACK");
     } else {
       setUploadStatus("No data provided");
       return;
@@ -82,9 +82,7 @@ export default function Step3Dialog({ courseFileName, closeDialog }) {
 
   return (
     <Dialog open onClose={closeDialog}>
-      <DialogContent
-        className="flex flex-col space-y-4 max-h-[80vh] overflow-y-auto" // Ensure dialog is scrollable
-      >
+      <DialogContent className="flex flex-col space-y-4 max-h-[80vh] overflow-y-auto">
         <FormProvider {...methods}>
           <form
             onSubmit={handleSubmit(onSubmit)}
@@ -138,6 +136,11 @@ export default function Step3Dialog({ courseFileName, closeDialog }) {
               />
             ) : (
               <InstructorFeedback /> // Form data component
+            )}
+
+            {/* Show validation errors for PDF */}
+            {errors.file && (
+              <p className="text-red-600">{errors.file.message}</p>
             )}
 
             {uploadStatus && (

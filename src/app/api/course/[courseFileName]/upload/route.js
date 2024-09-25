@@ -12,8 +12,15 @@ export const config = {
 };
 
 // Helper function to generate unique file names based on course information
-function generateFileName(courseFileName, fileType, extension = "pdf") {
-  return `${courseFileName}.${fileType}.${extension}`;
+function generateFileName(
+  courseFileName,
+  fileType,
+  index = null,
+  extension = "pdf",
+) {
+  return index !== null
+    ? `${courseFileName}.${fileType}-${index}.${extension}` // Handle multiple files with index
+    : `${courseFileName}.${fileType}.${extension}`; // Handle single file
 }
 
 // Helper function to upload file to MinIO
@@ -22,13 +29,12 @@ async function uploadToMinIO(file, courseFileName, fileName) {
 
   const params = {
     Bucket: "course-files", // MinIO bucket where files are stored
-    Key: `${courseFileName}/${fileName}`, // Path in the bucket (e.g., '2024.1.CSE487-3/2024.1.CSE487-3.OBE-SUMMARY.pdf')
+    Key: `${courseFileName}/${fileName}`, // Path in the bucket
     Body: buffer, // The file content
-    ContentType: file.type, // File MIME type (e.g., 'application/pdf')
+    ContentType: file.type, // File MIME type
   };
 
   try {
-    // Upload file to MinIO
     await s3.send(new PutObjectCommand(params));
     console.log(`✅ File uploaded successfully to MinIO: ${params.Key}`);
     return { success: true, message: "File uploaded successfully" };
@@ -41,14 +47,12 @@ async function uploadToMinIO(file, courseFileName, fileName) {
 // Helper function to delete existing files that match the base name
 async function deleteMatchingFiles(courseFileName, baseFileName) {
   try {
-    // List all files in the course folder
     const listParams = {
       Bucket: "course-files",
       Prefix: `${courseFileName}/`, // List all files in this folder
     };
     const listResult = await s3.send(new ListObjectsV2Command(listParams));
 
-    // Filter files that match the base file name (ignoring extensions)
     const matchingFiles = listResult.Contents.filter((file) =>
       file.Key.startsWith(`${courseFileName}/${baseFileName}`),
     );
@@ -59,10 +63,7 @@ async function deleteMatchingFiles(courseFileName, baseFileName) {
       );
       for (const file of matchingFiles) {
         console.log(`🗑️ Deleting file: ${file.Key}`);
-        const deleteParams = {
-          Bucket: "course-files",
-          Key: file.Key,
-        };
+        const deleteParams = { Bucket: "course-files", Key: file.Key };
         await s3.send(new DeleteObjectCommand(deleteParams));
       }
     } else {
@@ -73,23 +74,59 @@ async function deleteMatchingFiles(courseFileName, baseFileName) {
   }
 }
 
+// Helper function to handle file uploads (single or multiple)
+async function handleFileUpload(
+  fileData,
+  courseFileName,
+  baseFileName,
+  isSingleFileUpload,
+) {
+  const files = fileData ? Object.entries(fileData) : [];
+
+  if (isSingleFileUpload) {
+    // Handle single file upload
+    const [key, file] = files[0];
+    if (file instanceof File) {
+      const fileName = generateFileName(
+        courseFileName,
+        baseFileName,
+        null,
+        "pdf",
+      );
+      console.log(`📂 Uploading single file: ${file.name} as ${fileName}`);
+      await uploadToMinIO(file, courseFileName, fileName);
+    }
+  } else {
+    // Handle multiple file upload
+    for (let [key, file] of files) {
+      if (file instanceof File) {
+        const fileName = generateFileName(courseFileName, key, null, "pdf");
+        console.log(`📂 Uploading file: ${file.name} as ${fileName}`);
+        await uploadToMinIO(file, courseFileName, fileName);
+      }
+    }
+  }
+}
+
 // API handler for file/text upload
 export async function POST(req, { params }) {
-  const { courseFileName } = params; // Get dynamic course file name from URL
+  const { courseFileName } = params;
   console.log(`📥 Received upload request for course: ${courseFileName}`);
 
   try {
-    // Parse formData from request (handles both text and file uploads)
+    // Parse formData from request
     const formData = await req.formData();
 
-    // Get the file (if present) or the text
-    const file = formData.get("file");
-    const textData = formData.get("text");
+    // Log all formData entries to inspect incoming data
+    for (const [key, value] of formData.entries()) {
+      console.log(
+        `🔍 FormData entry: ${key} = ${value instanceof File ? "[File]" : value}`,
+      );
+    }
 
-    // Define the type of file upload (e.g., 'OBE-SUMMARY', 'Instructor-Feedback', etc.)
-    const fileType = formData.get("fileType"); // Expecting the frontend to send this for each type of upload
+    // Extract file type
+    const fileType = formData.get("fileType");
 
-    // Ensure fileType is provided
     if (!fileType) {
       console.error("❌ File type is missing in the request");
       return NextResponse.json(
@@ -98,41 +135,57 @@ export async function POST(req, { params }) {
       );
     }
 
-    // Generate the base file name (without extension)
     const baseFileName = `${courseFileName}.${fileType}`;
 
-    // Delete any existing files with the same base file name (e.g., PDF or text)
-    console.log(
-      `🔍 Checking for existing files with base name: ${baseFileName}`,
-    );
+    // Delete existing files if necessary
     await deleteMatchingFiles(courseFileName, baseFileName);
 
-    // Handle file uploads (PDF or text)
-    if (file) {
-      const pdfFileName = generateFileName(courseFileName, fileType, "pdf");
-      console.log(`📂 File received: ${file.name}`);
+    // Determine whether it's a single file upload or multiple file uploads
+    let isSingleFileUpload = false;
 
-      // Upload the new PDF file to MinIO
-      const uploadResult = await uploadToMinIO(
-        file,
-        courseFileName,
-        pdfFileName,
+    const fileData = {};
+    for (const [key, value] of formData.entries()) {
+      if (value instanceof File) {
+        // Collect all file entries into fileData
+        fileData[key] = value;
+        if (key === "file") {
+          isSingleFileUpload = true; // If "file" key is present, it's a single file upload
+        }
+      }
+    }
+
+    if (Object.keys(fileData).length > 0) {
+      console.log(
+        `📂 Processing ${Object.keys(fileData).length} file(s) for upload...`,
       );
+      await handleFileUpload(
+        fileData,
+        courseFileName,
+        fileType,
+        isSingleFileUpload,
+      );
+
       return NextResponse.json(
-        { message: uploadResult.message },
+        { message: "Files uploaded successfully" },
         { status: 200 },
       );
     }
-    // Handle text uploads (e.g., .txt files)
-    else if (textData) {
+
+    // Handle text uploads
+    const textData = formData.get("text");
+    if (textData) {
       console.log(`📄 Text data received: ${textData}`);
       const textBuffer = Buffer.from(textData, "utf-8");
-      const textFileName = generateFileName(courseFileName, fileType, "txt");
+      const textFileName = generateFileName(
+        courseFileName,
+        fileType,
+        null,
+        "txt",
+      );
 
-      // Upload the new text file to MinIO
       const textParams = {
         Bucket: "course-files",
-        Key: `${courseFileName}/${textFileName}`, // Path in MinIO
+        Key: `${courseFileName}/${textFileName}`,
         Body: textBuffer,
         ContentType: "text/plain",
       };
@@ -144,14 +197,13 @@ export async function POST(req, { params }) {
         { status: 200 },
       );
     }
+
     // No file or text provided
-    else {
-      console.error("❌ No file or text provided in the request");
-      return NextResponse.json(
-        { error: "No file or text uploaded" },
-        { status: 400 },
-      );
-    }
+    console.error("❌ No file or text provided in the request");
+    return NextResponse.json(
+      { error: "No file or text uploaded" },
+      { status: 400 },
+    );
   } catch (error) {
     console.error("❌ Upload error:", error.message);
     return NextResponse.json(

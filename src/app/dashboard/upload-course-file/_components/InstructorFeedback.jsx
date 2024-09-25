@@ -97,10 +97,14 @@ export const fields = [
 ];
 
 const InstructorFeedback = () => {
+
+
   const {
     register,
     formState: { errors },
   } = useFormContext(); // Extract form state and errors
+
+  
 
   const getFieldsBySection = (section) => {
     return fields.filter((field) => field.section === section);
@@ -164,6 +168,7 @@ const InstructorFeedback = () => {
                   {errors[field.name]?.message}
                 </p>
               )}
+              
             </div>
           ))}
         </div>
