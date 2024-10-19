@@ -13,8 +13,7 @@ export const authConfig = {
       const { id, ...insertedData } = data; // Destructure to exclude 'id' from the insertion data
 
       // Retrieve and process the list of admin emails from the database
-       const adminEmails = await findAdminUserEmailAddresses();
-       
+      const adminEmails = await findAdminUserEmailAddresses();
 
       // Check if the provided email is one of the admin emails
       const isAdmin = adminEmails.includes(insertedData.email.toLowerCase());
@@ -28,6 +27,9 @@ export const authConfig = {
       });
     },
   },
+
+  // Trust host setting to ensure custom domain works
+  trustHost: true, // You can specify domains explicitly as ['sadman-workbench.zapto.org'] if needed
 
   session: { strategy: "jwt" },
   secret: process.env.AUTH_SECRET,
@@ -89,9 +91,8 @@ export const authConfig = {
       }
       if (account?.provider === "credentials") {
         if (user.emailVerified) {
-          return true
+          return true;
         }
-        
       }
       return false;
     },

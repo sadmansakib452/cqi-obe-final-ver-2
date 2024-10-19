@@ -8,7 +8,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
-} from "@/components/ui/Dialog";
+} from "@/components/ui/dialog.jsx";
 import DropzoneInput from "@/components/forms/DropzoneInput";
 import InstructorFeedback from "./InstructorFeedback.jsx"; // Form component
 import { Button } from "@/components/ui/button";

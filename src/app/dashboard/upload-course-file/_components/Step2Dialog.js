@@ -8,7 +8,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
-} from "@/components/ui/Dialog";
+} from "@/components/ui/dialog";
 import DropzoneInput from "@/components/forms/DropzoneInput";
 import Textarea from "@/components/forms/Textarea";
 import { Button } from "@/components/ui/button";

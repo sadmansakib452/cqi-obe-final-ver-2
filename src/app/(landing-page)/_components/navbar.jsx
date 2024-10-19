@@ -5,7 +5,7 @@ import Link from "next/link";
 import { ModeToggle } from "@/components/mode-toggle";
 import { siteConfig } from "@/config/site";
 import { settings } from "./settings";
-import Sidebar from "./Sidebar";
+import Sidebar from "./sidebar";
 import { AuthButtons } from "@/components/auth-button";
 import { navLinks } from "./links"; // Import navLinks here
 

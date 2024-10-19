@@ -6,11 +6,6 @@ import {
 import s3 from "@/lib/minio";
 import { NextResponse } from "next/server";
 
-// Disable Next.js's default body parsing to handle multipart data
-export const config = {
-  api: { bodyParser: false },
-};
-
 // Helper function to generate unique file names based on course information
 function generateFileName(
   courseFileName,
@@ -211,4 +206,13 @@ export async function POST(req, { params }) {
       { status: 500 },
     );
   }
+}
+
+// Additional handler for GET request, if needed
+export async function GET(req, { params }) {
+  // Implement your GET logic here if required
+  return NextResponse.json(
+    { message: "GET request processed" },
+    { status: 200 },
+  );
 }

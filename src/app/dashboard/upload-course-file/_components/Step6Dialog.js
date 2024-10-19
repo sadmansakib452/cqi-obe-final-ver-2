@@ -13,7 +13,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
-} from "@/components/ui/Dialog";
+} from "@/components/ui/dialog";
 import DropzoneInput from "@/components/forms/DropzoneInput"; // Existing dropzone component for file input
 import { Button } from "@/components/ui/button";
 import { AnimatePresence, motion } from "framer-motion";

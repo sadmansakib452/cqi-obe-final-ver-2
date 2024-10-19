@@ -1,5 +1,15 @@
+// {
+//   "compilerOptions": {
+//     "paths": {
+//       "@/*": ["./src/*"]
+//     }
+//   }
+// }
+
+
 {
   "compilerOptions": {
+    "baseUrl": ".",  // This is important to set the root of your project
     "paths": {
       "@/*": ["./src/*"]
     }

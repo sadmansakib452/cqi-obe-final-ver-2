@@ -7,9 +7,9 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
-} from "@/components/ui/Dialog";
+} from "@/components/ui/dialog";
 import DropzoneInput from "@/components/forms/DropzoneInput";
-import { Button } from "@/components/ui/Button";
+import { Button } from "@/components/ui/button";
 import Spinner from "@/components/Spinner"; // Import Spinner
 import { step1Schema } from "@/yup/step1Schema"; // Importing Step 1 schema
 

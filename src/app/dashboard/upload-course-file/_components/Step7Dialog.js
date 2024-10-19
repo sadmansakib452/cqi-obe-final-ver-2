@@ -1,14 +1,14 @@
 import { useState } from "react";
 import { useForm, FormProvider, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { step7Schema } from "@/yup/Step7Schema"; // Create a separate Yup schema file
+import { step7Schema } from "@/yup/step7Schema"; // Create a separate Yup schema file
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogFooter,
-} from "@/components/ui/Dialog";
+} from "@/components/ui/dialog";
 import DropzoneInput from "@/components/forms/DropzoneInput";
 import { Button } from "@/components/ui/button";
 

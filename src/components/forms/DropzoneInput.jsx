@@ -24,7 +24,7 @@ export default function DropzoneInput({
 
   const [files, setFiles] = useState(getValues(id) || []);
 
-  console.log(files)
+  console.log(files);
 
   const onDrop = useCallback(
     (acceptedFiles, rejectedFiles) => {
