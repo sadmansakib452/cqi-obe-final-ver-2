@@ -24,8 +24,6 @@ export default function DropzoneInput({
 
   const [files, setFiles] = useState(getValues(id) || []);
 
-  console.log(files);
-
   const onDrop = useCallback(
     (acceptedFiles, rejectedFiles) => {
       if (rejectedFiles && rejectedFiles.length > 0) {
@@ -98,18 +96,21 @@ export default function DropzoneInput({
   return (
     <div className="w-full">
       {/* Label for the Dropzone */}
-      <label className="block text-sm font-medium text-gray-700" htmlFor={id}>
+      <label
+        className="block text-sm font-medium text-gray-700 dark:text-gray-200"
+        htmlFor={id}
+      >
         {label}
       </label>
 
       {/* If it's read-only and no files are uploaded */}
       {readOnly && !(files?.length > 0) ? (
-        <div className="py-3 pl-3 pr-4 text-sm border border-gray-300 divide-y divide-gray-300 rounded-md">
+        <div className="py-3 pl-3 pr-4 text-sm border border-gray-300 dark:border-gray-700 dark:bg-gray-800 divide-y divide-gray-300 dark:divide-gray-600 rounded-md">
           No file uploaded
         </div>
       ) : files?.length >= maxFiles ? (
         // If max files are uploaded, display file previews
-        <ul className="mt-2 border border-gray-300 divide-y divide-gray-300 rounded-md">
+        <ul className="mt-2 border border-gray-300 dark:border-gray-700 divide-y divide-gray-300 dark:divide-gray-600 rounded-md">
           {files.map((file, index) => (
             <FilePreview
               key={index}
@@ -129,15 +130,15 @@ export default function DropzoneInput({
             <>
               <div
                 {...getRootProps()}
-                className="w-full mt-2 p-4 bg-gray-100 border border-gray-300 border-dashed rounded cursor-pointer"
+                className="w-full mt-2 p-4 bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 border-dashed rounded cursor-pointer"
               >
                 <input {...getInputProps()} {...field} />
                 <div className="text-center space-y-2">
-                  <p className="text-gray-500">
+                  <p className="text-gray-500 dark:text-gray-400">
                     Drag &apos;n&apos; drop some files here, or click to select
                     files
                   </p>
-                  <p className="text-xs text-gray-500">
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
                     {`${maxFiles - (files?.length || 0)} file(s) remaining`}
                   </p>
                 </div>
@@ -145,19 +146,21 @@ export default function DropzoneInput({
 
               {/* Helper text for the dropzone */}
               {helperText && (
-                <p className="mt-2 text-xs text-gray-500">{helperText}</p>
+                <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+                  {helperText}
+                </p>
               )}
 
               {/* Error display */}
               {errors[id] && (
-                <p className="mt-2 text-sm text-red-500">
+                <p className="mt-2 text-sm text-red-500 dark:text-red-400">
                   {errors[id].message}
                 </p>
               )}
 
               {/* Display files if any */}
               {!readOnly && !!files.length && (
-                <ul className="mt-2 border border-gray-300 divide-y divide-gray-300 rounded-md">
+                <ul className="mt-2 border border-gray-300 dark:border-gray-700 divide-y divide-gray-300 dark:divide-gray-600 rounded-md">
                   {files.map((file, index) => (
                     <FilePreview
                       key={index}

@@ -17,17 +17,21 @@ export default function FileUploadCard({
   return (
     <div>
       <Card
-        className="p-4 border hover:cursor-pointer hover:bg-gray-100 transition-all"
+        className="p-4 border bg-white dark:bg-zinc-800 hover:bg-gray-100 dark:hover:bg-zinc-700 hover:shadow-lg dark:hover:shadow-zinc-600 transition-all cursor-pointer" // Added cursor-pointer here
         onClick={onClick}
       >
         <CardHeader>
-          <CardTitle className="text-md font-semibold">{label}</CardTitle>
+          <CardTitle className="text-md font-semibold text-gray-900 dark:text-gray-100">
+            {label}
+          </CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-sm text-gray-500">{description}</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400">
+            {description}
+          </p>
         </CardContent>
         <CardFooter>
-          <div className="flex items-center text-blue-500">
+          <div className="flex items-center text-blue-500 dark:text-blue-400">
             <UploadCloud size={20} className="mr-2" />
             <span>Click to upload</span>
           </div>

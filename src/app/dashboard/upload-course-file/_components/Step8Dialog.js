@@ -32,11 +32,9 @@ export default function Step8Dialog({ courseFileName, closeDialog }) {
   // Rename file on drop to match the course file convention
   const renameFile = (file) => {
     if (file) {
-      const renamedFile = new File(
-        [file],
-        `${courseFileName}.ASSIGNMENT.pdf`,
-        { type: file.type },
-      );
+      const renamedFile = new File([file], `${courseFileName}.ASSIGNMENT.pdf`, {
+        type: file.type,
+      });
       console.log("Renamed file:", renamedFile); // <-- Added log for renamed file
       return renamedFile; // Return the renamed file for further use
     }
@@ -93,7 +91,7 @@ export default function Step8Dialog({ courseFileName, closeDialog }) {
   };
 
   return (
-    <Dialog open onClose={closeDialog}>
+    <Dialog open onOpenChange={closeDialog}>
       <DialogContent className="flex flex-col space-y-4">
         <FormProvider {...methods}>
           <form
@@ -137,23 +135,17 @@ export default function Step8Dialog({ courseFileName, closeDialog }) {
               </p>
             )}
 
-            <DialogFooter className="flex justify-between space-x-4">
+            <DialogFooter className="flex flex-col space-y-4 sm:flex-row sm:space-y-0 sm:justify-between sm:space-x-4">
               <Button
                 type="button"
                 variant="outline"
                 onClick={closeDialog}
                 className="w-full sm:w-auto"
-                disabled={loading} // Disable button when loading
               >
                 Cancel
               </Button>
-              <Button
-                type="submit"
-                className="w-full sm:w-auto"
-                disabled={loading}
-              >
-                {loading ? "Uploading..." : "Upload"}{" "}
-                {/* Button text changes based on loading state */}
+              <Button type="submit" className="w-full sm:w-auto">
+                Upload
               </Button>
             </DialogFooter>
           </form>

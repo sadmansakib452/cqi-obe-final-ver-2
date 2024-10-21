@@ -1,4 +1,4 @@
-'use client'
+"use client";
 import Link from "next/link";
 import { ContentLayout } from "@/components/admin-panel/content-layout";
 import {
@@ -91,33 +91,39 @@ export default function CourseFilePage() {
         </BreadcrumbList>
       </Breadcrumb>
 
-      <div className="bg-gray-50 py-8 min-h-screen">
+      <div className="bg-gray-50 dark:bg-zinc-900 py-8 min-h-screen transition-colors duration-300">
         <div className="container mx-auto p-4">
           {isCourseCreated && (
-            <div className="flex justify-between items-center mb-6">
-              <div className="flex items-center space-x-4">
+            <>
+              {/* Course File Name */}
+              <div className="text-left mb-6">
+                <h2 className="text-xl font-bold text-blue-600 dark:text-blue-400">
+                  Course File:{" "}
+                  <span className="text-blue-700 dark:text-blue-300">
+                    {courseFileName}
+                  </span>
+                </h2>
+              </div>
+              {/* Container for buttons */}
+              <div className="flex justify-between items-center mb-4">
                 <button
                   onClick={handleGoBack}
-                  className="bg-gray-200 text-gray-800 text-sm px-4 py-2 rounded-md hover:bg-gray-300 transition"
+                  className="bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 text-sm px-4 py-2 rounded-md hover:bg-gray-300 dark:hover:bg-gray-600 transition"
                 >
                   <i className="fas fa-arrow-left mr-2"></i> Back
                 </button>
 
-                <h2 className="text-xl font-bold text-blue-600">
-                  Course File:{" "}
-                  <span className="text-blue-700">{courseFileName}</span>
-                </h2>
+                <button
+                  onClick={handleClearSession}
+                  className="bg-red-500 dark:bg-red-700 text-white px-4 py-2 rounded-md text-sm hover:bg-red-600 dark:hover:bg-red-800 transition"
+                >
+                  <i className="fas fa-times mr-2"></i> Cancel Upload
+                </button>
               </div>
-
-              <button
-                onClick={handleClearSession}
-                className="bg-red-500 text-white px-4 py-2 rounded-md text-sm hover:bg-red-600 transition"
-              >
-                <i className="fas fa-times mr-2"></i> Cancel Upload
-              </button>
-            </div>
+            </>
           )}
 
+          {/* Form or Upload Cards */}
           {!isCourseCreated ? (
             <CourseFileForm
               onSubmit={handleCourseFileSubmit}
@@ -186,6 +192,7 @@ export default function CourseFilePage() {
         </div>
       </div>
 
+      {/* Dialogs for each step */}
       {currentDialog === "step1" && (
         <Step1Dialog
           courseFileName={courseFileName}

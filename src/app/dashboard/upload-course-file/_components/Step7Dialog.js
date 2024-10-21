@@ -47,9 +47,9 @@ export default function Step7Dialog({ courseFileName, closeDialog }) {
     // Append files with renamed filenames
     Object.keys(data.finalExam).forEach((key) => {
       const renamedFile = renameFile(key);
-      console.log('final', renamedFile)
+      console.log("final", renamedFile);
       if (renamedFile) {
-        const KEY = key.toUpperCase()
+        const KEY = key.toUpperCase();
         formData.append(`FINAL.${KEY}`, renamedFile);
         formData.append("fileType", `FinalExam-${key}`);
       }
@@ -83,7 +83,7 @@ export default function Step7Dialog({ courseFileName, closeDialog }) {
   };
 
   return (
-    <Dialog open onClose={closeDialog}>
+    <Dialog open onOpenChange={closeDialog}>
       <DialogContent className="flex flex-col space-y-4 max-h-[80vh] overflow-y-auto">
         <FormProvider {...methods}>
           <form
@@ -169,7 +169,7 @@ export default function Step7Dialog({ courseFileName, closeDialog }) {
               </p>
             )}
 
-            <DialogFooter className="flex justify-between space-x-4">
+            <DialogFooter className="flex flex-col space-y-4 sm:flex-row sm:space-y-0 sm:justify-between sm:space-x-4">
               <Button
                 type="button"
                 variant="outline"

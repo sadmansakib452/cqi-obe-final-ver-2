@@ -1,19 +1,22 @@
-
+"use client"
 
 import Link from "next/link";
 import { ContentLayout } from "@/components/admin-panel/content-layout";
 import PlaceholderContent from "@/components/demo/placeholder-content";
-import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
-import { auth } from "@/auth";
-import UnauthorizedPage from "@/components/unauthorized";
-// import { usePathname } from "next/navigation";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
 
 
-export default async function DashboardPage() {
-  const session = await auth();
 
-  // const pathname = usePathname()
- console.log('dashboard')
+// Main page to view course files for a specific course
+export default function CourseFilesViewPage() {
+ 
   return (
     <ContentLayout title="Dashboard">
       <Breadcrumb>
@@ -30,9 +33,8 @@ export default async function DashboardPage() {
         </BreadcrumbList>
       </Breadcrumb>
       <PlaceholderContent>
-        <h1 className="font-extrabold">Welcome! {session?.user?.name || session?.user?.email}</h1>
+
       </PlaceholderContent>
-      
     </ContentLayout>
   );
 }

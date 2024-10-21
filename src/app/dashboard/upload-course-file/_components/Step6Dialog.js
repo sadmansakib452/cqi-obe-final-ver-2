@@ -97,7 +97,7 @@ export default function Step6Dialog({ courseFileName, closeDialog }) {
   };
 
   return (
-    <Dialog open onClose={closeDialog}>
+    <Dialog open onOpenChange={closeDialog}>
       <DialogContent className="flex flex-col space-y-4 max-h-[80vh] overflow-y-auto">
         <FormProvider {...methods}>
           <form
@@ -241,7 +241,7 @@ export default function Step6Dialog({ courseFileName, closeDialog }) {
               ))}
             </AnimatePresence>
 
-            <DialogFooter className="flex justify-between space-x-4">
+            <DialogFooter className="flex flex-col space-y-4 sm:flex-row sm:space-y-0 sm:justify-between sm:space-x-4">
               <Button
                 type="button"
                 variant="outline"

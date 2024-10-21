@@ -12,14 +12,16 @@ const SignUpPage = () => {
   return (
     <main className="flex items-center justify-center min-h-screen bg-gray-100 dark:bg-gray-900">
       <div className="w-full max-w-md p-8 bg-white dark:bg-gray-800 rounded-lg shadow-lg">
-        {/* Header with back arrow */}
-        <div className="flex items-center mb-4">
-          <Link href="/">
-            <Button variant="ghost" size="icon">
-              <ArrowLeft className="w-5 h-5 dark:text-white" />
-            </Button>
-          </Link>
-          <h1 className="text-2xl font-bold ml-2 dark:text-white">Sign Up</h1>
+        {/* Branding */}
+        <div className="text-center mb-4">
+          <h2 className="text-sm font-light text-gray-500 dark:text-gray-300 uppercase tracking-wide">
+            EWU - Course File Archiver
+          </h2>
+        </div>
+
+        {/* Centered Sign Up Title */}
+        <div className="text-center">
+          <h1 className="text-2xl font-bold dark:text-white">Sign Up</h1>
         </div>
 
         {/* Signup Form */}

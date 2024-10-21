@@ -67,7 +67,7 @@ export default function FileUploadDialog({
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={closeDialog} onClose={closeDialog}>
+    <Dialog open={isOpen} onOpenChange={closeDialog}>
       {/* Ensure `onOpenChange` is linked to `closeDialog` */}
       <DialogContent>
         <DialogHeader>

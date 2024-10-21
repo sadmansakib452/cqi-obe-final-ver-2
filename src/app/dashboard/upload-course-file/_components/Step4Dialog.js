@@ -27,7 +27,7 @@ export default function Step4Dialog({ courseFileName, closeDialog }) {
   const uploadedFile = watch("file");
 
   // Log file being watched
-  console.log("Watching uploadedFile:", uploadedFile); // <-- Added log
+  console.log("Watching uploadedFile:", uploadedFile);
 
   // Rename file on drop to match the course file convention
   const renameFile = (file) => {
@@ -37,33 +37,33 @@ export default function Step4Dialog({ courseFileName, closeDialog }) {
         `${courseFileName}.COURSE-OUTLINE.pdf`,
         { type: file.type },
       );
-      console.log("Renamed file:", renamedFile); // <-- Added log for renamed file
-      return renamedFile; // Return the renamed file for further use
+      console.log("Renamed file:", renamedFile);
+      return renamedFile;
     }
     return null;
   };
 
   const onDrop = (acceptedFiles) => {
-    console.log("Accepted files from dropzone:", acceptedFiles); // <-- Log incoming file(s)
-    const file = acceptedFiles[0]; // Take the first dropped file
-    const renamedFile = renameFile(file); // Rename the file
+    console.log("Accepted files from dropzone:", acceptedFiles);
+    const file = acceptedFiles[0];
+    const renamedFile = renameFile(file);
     if (renamedFile) {
       setValue("file", [renamedFile], { shouldValidate: true });
-      console.log("Renamed file set in form:", renamedFile); // <-- Log the file set in form
+      console.log("Renamed file set in form:", renamedFile);
     }
   };
 
   const onSubmit = async (data) => {
-    console.log("Submit event triggered"); // <-- Log to check if submit is triggered
+    console.log("Submit event triggered");
 
     console.log("Frontend data:", data);
     if (!data.file || data.file.length === 0) {
       setUploadStatus("No file selected");
-      console.error("No file selected."); // <-- Added log
+      console.error("No file selected.");
       return;
     }
 
-    console.log("Submitting data:", data); // <-- Log the data being submitted
+    console.log("Submitting data:", data);
 
     const formData = new FormData();
     formData.append("file", data.file[0]); // Add renamed file
@@ -87,14 +87,23 @@ export default function Step4Dialog({ courseFileName, closeDialog }) {
       closeDialog(); // Close the dialog
     } catch (error) {
       setUploadStatus("Upload failed. Try again.");
-      console.error("Error during file upload:", error.message); // <-- Log error details
+      console.error("Error during file upload:", error.message);
       setLoading(false); // Stop loading if failed
     }
   };
 
   return (
-    <Dialog open onClose={closeDialog}>
-      <DialogContent className="flex flex-col space-y-4">
+    <Dialog open onOpenChange={closeDialog}>
+      <DialogContent
+        className="flex flex-col space-y-4 w-full max-w-lg mx-auto p-4 sm:p-6 sm:rounded-lg"
+        style={{
+          minWidth: "320px",
+          maxWidth: "500px", // Ensure it is not too wide
+          margin: "0 auto", // Center the dialog on the screen
+          maxHeight: "80vh",
+          overflowY: "auto", // Enable scrolling if content overflows
+        }}
+      >
         <FormProvider {...methods}>
           <form
             onSubmit={handleSubmit(onSubmit)}
@@ -137,7 +146,7 @@ export default function Step4Dialog({ courseFileName, closeDialog }) {
               </p>
             )}
 
-            <DialogFooter className="flex justify-between space-x-4">
+            <DialogFooter className="flex flex-col space-y-4 sm:flex-row sm:space-y-0 sm:justify-between sm:space-x-4">
               <Button
                 type="button"
                 variant="outline"
@@ -153,7 +162,6 @@ export default function Step4Dialog({ courseFileName, closeDialog }) {
                 disabled={loading}
               >
                 {loading ? "Uploading..." : "Upload"}{" "}
-                {/* Button text changes based on loading state */}
               </Button>
             </DialogFooter>
           </form>

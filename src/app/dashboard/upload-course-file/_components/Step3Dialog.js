@@ -81,8 +81,17 @@ export default function Step3Dialog({ courseFileName, closeDialog }) {
   };
 
   return (
-    <Dialog open onClose={closeDialog}>
-      <DialogContent className="flex flex-col space-y-4 max-h-[80vh] overflow-y-auto">
+    <Dialog open onOpenChange={closeDialog}>
+      <DialogContent
+        className="flex flex-col space-y-4 w-full max-w-lg mx-auto p-4 sm:p-6 sm:rounded-lg"
+        style={{
+          minWidth: "320px",
+          maxWidth: "500px", // Ensure it is not too wide
+          margin: "0 auto", // Center the dialog on the screen
+          maxHeight: "80vh",
+          overflowY: "auto", // Enable scrolling if content overflows
+        }}
+      >
         <FormProvider {...methods}>
           <form
             onSubmit={handleSubmit(onSubmit)}
@@ -155,7 +164,7 @@ export default function Step3Dialog({ courseFileName, closeDialog }) {
               </p>
             )}
 
-            <DialogFooter className="flex justify-between space-x-4">
+            <DialogFooter className="flex flex-col space-y-4 sm:flex-row sm:space-y-0 sm:justify-between sm:space-x-4">
               <Button
                 type="button"
                 variant="outline"

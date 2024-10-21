@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { Ellipsis, LogOut } from "lucide-react";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
 import { CollapseMenuButton } from "./collapse-menu-button";
 import { Button } from "../ui/button";
@@ -15,10 +15,18 @@ import {
 } from "../ui/tooltip";
 import { getMenuList } from "@/lib/menu-list";
 import { cn } from "@/lib/utils";
+import { signoutUserAction } from "@/actions/signout-user-action";
 
 export function Menu({ isOpen }) {
   const pathname = usePathname();
   const menuList = getMenuList(pathname);
+
+  const router = useRouter();
+
+  const handleSignOut = async () => {
+    await signoutUserAction();
+    router.push("/"); // Redirect to the home page
+  };
 
   return (
     <ScrollArea className="[&>div>div[style]]:!block">
@@ -104,7 +112,7 @@ export function Menu({ isOpen }) {
               <Tooltip delayDuration={100}>
                 <TooltipTrigger asChild>
                   <Button
-                    onClick={() => {}}
+                    onClick={handleSignOut}
                     variant="outline"
                     className="w-full justify-center h-10 mt-5"
                   >

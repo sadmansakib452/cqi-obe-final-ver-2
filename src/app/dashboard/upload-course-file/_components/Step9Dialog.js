@@ -93,7 +93,7 @@ export default function Step9Dialog({ courseFileName, closeDialog }) {
   };
 
   return (
-    <Dialog open onClose={closeDialog}>
+    <Dialog open onOpenChange={closeDialog}>
       <DialogContent className="flex flex-col space-y-4">
         <FormProvider {...methods}>
           <form
@@ -137,23 +137,17 @@ export default function Step9Dialog({ courseFileName, closeDialog }) {
               </p>
             )}
 
-            <DialogFooter className="flex justify-between space-x-4">
+            <DialogFooter className="flex flex-col space-y-4 sm:flex-row sm:space-y-0 sm:justify-between sm:space-x-4">
               <Button
                 type="button"
                 variant="outline"
                 onClick={closeDialog}
                 className="w-full sm:w-auto"
-                disabled={loading} // Disable button when loading
               >
                 Cancel
               </Button>
-              <Button
-                type="submit"
-                className="w-full sm:w-auto"
-                disabled={loading}
-              >
-                {loading ? "Uploading..." : "Upload"}{" "}
-                {/* Button text changes based on loading state */}
+              <Button type="submit" className="w-full sm:w-auto">
+                Upload
               </Button>
             </DialogFooter>
           </form>
