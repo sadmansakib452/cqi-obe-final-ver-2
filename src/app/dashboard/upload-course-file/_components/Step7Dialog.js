@@ -12,7 +12,7 @@ import {
 import DropzoneInput from "@/components/forms/DropzoneInput";
 import { Button } from "@/components/ui/button";
 
-export default function Step7Dialog({ courseFileName, closeDialog }) {
+export default function Step7Dialog({ courseFileName, closeDialog, userId }) {
   const [uploadStatus, setUploadStatus] = useState(null);
 
   // Initialize react-hook-form with Yup validation for Step 7
@@ -43,6 +43,7 @@ export default function Step7Dialog({ courseFileName, closeDialog }) {
 
   const onSubmit = async (data) => {
     const formData = new FormData();
+    formData.append("userId", userId); // Add userId to formData
 
     // Append files with renamed filenames
     Object.keys(data.finalExam).forEach((key) => {
@@ -51,7 +52,7 @@ export default function Step7Dialog({ courseFileName, closeDialog }) {
       if (renamedFile) {
         const KEY = key.toUpperCase();
         formData.append(`FINAL.${KEY}`, renamedFile);
-        formData.append("fileType", `FinalExam-${key}`);
+        formData.append("fileType", `Final-${key}`);
       }
     });
 

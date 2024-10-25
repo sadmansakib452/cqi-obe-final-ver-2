@@ -13,7 +13,7 @@ import DropzoneInput from "@/components/forms/DropzoneInput";
 import Textarea from "@/components/forms/Textarea";
 import { Button } from "@/components/ui/button";
 
-export default function Step2Dialog({ courseFileName, closeDialog }) {
+export default function Step2Dialog({ courseFileName, closeDialog, userId }) {
   const [uploadStatus, setUploadStatus] = useState(null);
   const [isPdfUpload, setIsPdfUpload] = useState(true); // Toggle between PDF and Text Editor
   const [loading, setLoading] = useState(false); // To manage loading state
@@ -52,6 +52,7 @@ export default function Step2Dialog({ courseFileName, closeDialog }) {
     if (loading) return; // Prevent multiple submissions
 
     const formData = new FormData();
+    formData.append("userId", userId);
 
     // Check whether PDF upload or text area is being submitted
     if (isPdfUpload && data.file) {

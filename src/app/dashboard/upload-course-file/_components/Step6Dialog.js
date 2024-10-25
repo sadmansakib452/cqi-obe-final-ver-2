@@ -18,7 +18,7 @@ import DropzoneInput from "@/components/forms/DropzoneInput"; // Existing dropzo
 import { Button } from "@/components/ui/button";
 import { AnimatePresence, motion } from "framer-motion";
 
-export default function Step6Dialog({ courseFileName, closeDialog }) {
+export default function Step6Dialog({ courseFileName, closeDialog, userId }) {
   const [customError, setCustomError] = useState("");
 
   // Initialize react-hook-form with Yup validation for Step 6
@@ -45,30 +45,29 @@ export default function Step6Dialog({ courseFileName, closeDialog }) {
     }
 
     const formData = new FormData();
+    formData.append("userId", userId); // Add userId to formData
 
     data.quizExams.forEach((exam, index) => {
       // Append each file along with its fileType
       if (exam.question) {
-        formData.append(`QUIZ-${index+1}.QUESTION`, exam.question[0]);
+        formData.append(`QUIZ-${index + 1}.QUESTION`, exam.question[0]);
         formData.append("fileType", "Quiz-Question");
       }
       if (exam.highest) {
-        formData.append(`QUIZ-${index+1}.HIGHEST`, exam.highest[0]);
+        formData.append(`QUIZ-${index + 1}.HIGHEST`, exam.highest[0]);
         formData.append("fileType", "Quiz-Highest");
       }
       if (exam.average) {
-        formData.append(`QUIZ-${index+1}.AVERAGE`, exam.average[0]);
+        formData.append(`QUIZ-${index + 1}.AVERAGE`, exam.average[0]);
         formData.append("fileType", "Quiz-Average");
       }
       if (exam.marginal) {
-        formData.append(`QUIZ-${index+1}.MARGINAL`, exam.marginal[0]);
+        formData.append(`QUIZ-${index + 1}.MARGINAL`, exam.marginal[0]);
         formData.append("fileType", "Quiz-Marginal");
       }
     });
 
     try {
-
-      
       const response = await fetch(`/api/course/${courseFileName}/upload`, {
         method: "POST",
         body: formData,

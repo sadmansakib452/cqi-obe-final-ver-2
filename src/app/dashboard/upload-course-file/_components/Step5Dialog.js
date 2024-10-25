@@ -18,7 +18,7 @@ import DropzoneInput from "@/components/forms/DropzoneInput"; // Existing dropzo
 import { Button } from "@/components/ui/button";
 import { AnimatePresence, motion } from "framer-motion";
 
-export default function Step5Dialog({ courseFileName, closeDialog }) {
+export default function Step5Dialog({ courseFileName, closeDialog, userId }) {
   const [customError, setCustomError] = useState("");
 
   // Initialize react-hook-form with Yup validation for Step 5
@@ -45,23 +45,29 @@ export default function Step5Dialog({ courseFileName, closeDialog }) {
     }
 
     const formData = new FormData();
+    formData.append("userId", userId); // Add userId to formData
+
     data.midExams.forEach((exam, index) => {
       // Append files to formData with fileType
       if (exam.question) {
-        formData.append(`MID-${index+1}.QUESTION`, exam.question[0]);
+        formData.append(`MID-${index + 1}.QUESTION`, exam.question[0]);
         formData.append("fileType", "Mid-Question"); // Set the fileType
+        formData.append("index", index+1); // Add index to formData
       }
       if (exam.highest) {
-        formData.append(`MID-${index+1}.HIGHEST`, exam.highest[0]);
+        formData.append(`MID-${index + 1}.HIGHEST`, exam.highest[0]);
         formData.append("fileType", "Mid-Highest");
+        formData.append("index", index+1); // Add index to formData
       }
       if (exam.average) {
-        formData.append(`MID-${index+1}.average`, exam.average[0]);
+        formData.append(`MID-${index + 1}.AVERAGE`, exam.average[0]);
         formData.append("fileType", "Mid-Average");
+        formData.append("index", index+1); // Add index to formData
       }
       if (exam.marginal) {
-        formData.append(`MID-${index+1}.MARGINAL`, exam.marginal[0]);
+        formData.append(`MID-${index + 1}.MARGINAL`, exam.marginal[0]);
         formData.append("fileType", "Mid-Marginal");
+        formData.append("index", index+1); // Add index to formData
       }
     });
 

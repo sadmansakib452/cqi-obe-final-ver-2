@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/button";
 import Spinner from "@/components/Spinner"; // Import Spinner
 import { step8Schema } from "@/yup/step8Schema"; // Importing Step 1 schema
 
-export default function Step8Dialog({ courseFileName, closeDialog }) {
+export default function Step8Dialog({ courseFileName, closeDialog, userId }) {
   const [uploadStatus, setUploadStatus] = useState(null);
   const [loading, setLoading] = useState(false); // Loading state
 
@@ -64,6 +64,7 @@ export default function Step8Dialog({ courseFileName, closeDialog }) {
     console.log("Submitting data:", data); // <-- Log the data being submitted
 
     const formData = new FormData();
+    formData.append("userId", userId); // Add userId to formData
     formData.append("file", data.file[0]); // Add renamed file
     formData.append("fileType", "ASSIGNMENT");
 

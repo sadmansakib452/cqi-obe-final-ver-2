@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/button";
 import Spinner from "@/components/Spinner"; // Import Spinner
 import { step1Schema } from "@/yup/step1Schema"; // Importing Step 1 schema
 
-export default function Step1Dialog({ courseFileName, closeDialog }) {
+export default function Step1Dialog({ courseFileName, closeDialog, userId }) {
   const [uploadStatus, setUploadStatus] = useState(null);
   const [loading, setLoading] = useState(false); // Loading state
 
@@ -56,6 +56,7 @@ export default function Step1Dialog({ courseFileName, closeDialog }) {
     const formData = new FormData();
     formData.append("file", data.file[0]); // Add renamed file
     formData.append("fileType", "FINAL-GRADES");
+    formData.append("userId", userId);
 
     setLoading(true); // Start loading when upload begins
     setUploadStatus(null); // Reset status

@@ -13,18 +13,21 @@ enum Role {
   admin
 }
 
-// User model
+// User model: Each user (faculty/admin) has a role and a list of course files they own
 model User {
-  id            String   @id @default(auto()) @map("_id") @db.ObjectId
-  name          String?
-  email         String   @unique
-  emailVerified DateTime?
-  image         String?
-  password      String?
-  role          Role     @default(user)
-  accounts      Account[]
-  sessions      Session[]
+  id             String          @id @default(auto()) @map("_id") @db.ObjectId
+  name           String?
+  email          String          @unique
+  emailVerified  DateTime?
+  image          String?
+  password       String?
+  role           Role            @default(user)
+  accounts       Account[]
+  sessions       Session[]
   authenticators Authenticator[]
+
+  // Each user can have multiple course files (faculty ownership)
+  courseFiles CourseFiles[]
 }
 
 // Admin email addresses model
@@ -33,10 +36,10 @@ model AdminUserEmailAddresses {
   email String @unique
 }
 
-// Account model
+// Account model for authentication
 model Account {
-  id                String     @id @default(auto()) @map("_id") @db.ObjectId
-  userId            String     @db.ObjectId
+  id                String  @id @default(auto()) @map("_id") @db.ObjectId
+  userId            String  @db.ObjectId
   type              String
   provider          String
   providerAccountId String
@@ -47,7 +50,7 @@ model Account {
   scope             String?
   id_token          String?
   session_state     String?
-  user              User       @relation(fields: [userId], references: [id])
+  user              User    @relation(fields: [userId], references: [id])
 
   @@unique([provider, providerAccountId], name: "provider_providerAccountId")
 }
@@ -63,24 +66,98 @@ model Session {
 
 // Verification Token model
 model VerificationToken {
-  id          String   @id @default(auto()) @map("_id") @db.ObjectId
-  identifier  String
-  token       String
-  expires     DateTime
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  identifier String
+  token      String
+  expires    DateTime
+
   @@unique([identifier, token])
 }
 
-// Authenticator model
+// Authenticator model for multi-factor authentication
 model Authenticator {
-  id                  String   @id @default(auto()) @map("_id") @db.ObjectId
-  credentialID        String
-  userId              String   @db.ObjectId
-  providerAccountId   String
-  credentialPublicKey String
-  counter             Int
+  id                   String  @id @default(auto()) @map("_id") @db.ObjectId
+  credentialID         String
+  userId               String  @db.ObjectId
+  providerAccountId    String
+  credentialPublicKey  String
+  counter              Int
   credentialDeviceType String
-  credentialBackedUp  Boolean
-  transports          String?
-  user                User     @relation(fields: [userId], references: [id])
+  credentialBackedUp   Boolean
+  transports           String?
+  user                 User    @relation(fields: [userId], references: [id])
+
   @@unique([userId, credentialID])
+}
+
+// Model for course files
+model CourseFiles {
+  id             String     @id @default(auto()) @map("_id") @db.ObjectId
+  courseFileName String // Name of the course file (e.g., "2024.1.CSE487-5")
+  userId         String     @db.ObjectId // Foreign key linking the user who created this course file
+  user           User       @relation(fields: [userId], references: [id])
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+  finalGrades    String?
+  summaryObe     String?
+  insFeedback    String?
+  courseOutline  String?
+  assignment     String?
+  labExperiment  String?
+  midExams       MidExam[]
+  quizExams      QuizExam[]
+  finalExam      FinalExam?
+  isCompleted    Boolean    @default(false)
+
+  // Compound unique constraint on courseFileName and userId
+  @@unique([courseFileName, userId])
+}
+
+// Model to store mid-exam related files (1-to-many with CourseFiles)
+model MidExam {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  question    String? // URL for mid-exam question
+  highest     String? // URL for highest scoring answer script
+  average     String? // URL for average scoring answer script
+  marginal    String? // URL for marginal script
+  isCompleted Boolean  @default(false) // Track if mid-exam upload is completed
+  timestamp   DateTime @default(now()) // When the files were uploaded
+
+  courseFilesId String      @db.ObjectId
+  courseFiles   CourseFiles @relation(fields: [courseFilesId], references: [id])
+  index         String // This is the index for Mid-1, Mid-2, etc.
+
+  @@unique([courseFilesId, index]) // Composite unique constraint
+}
+
+// Model to store quiz exam related files (1-to-many with CourseFiles)
+model QuizExam {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  question    String? // URL for mid-exam question
+  highest     String? // URL for highest scoring answer script
+  average     String? // URL for average scoring answer script
+  marginal    String? // URL for marginal script
+  isCompleted Boolean  @default(false) // Track if mid-exam upload is completed
+  timestamp   DateTime @default(now()) // When the files were uploaded
+
+  courseFilesId String      @db.ObjectId
+  courseFiles   CourseFiles @relation(fields: [courseFilesId], references: [id])
+  index         String // This is the index for Mid-1, Mid-2, etc.
+
+  @@unique([courseFilesId, index]) // Composite unique constraint
+}
+
+// Model to store final exam related files (1-to-1 with CourseFiles)
+model FinalExam {
+  id                 String   @id @default(auto()) @map("_id") @db.ObjectId
+  question      String? // URL for final exam question
+  highest String? // URL for highest scoring final answer script
+  average String? // URL for average scoring final answer script
+  marginal      String? // URL for marginal final answer script
+  isCompleted        Boolean  @default(false) // Track if final exam upload is completed
+  timestamp          DateTime @default(now()) // When the files were uploaded
+
+  // Foreign key to course files
+  courseFilesId String      @unique @db.ObjectId // UNIQUE for 1-to-1 relation
+  courseFiles   CourseFiles @relation(fields: [courseFilesId], references: [id])
 }
