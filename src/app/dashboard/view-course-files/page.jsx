@@ -13,46 +13,47 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import Table from "@/components/ui/table/Table";
-import { fetchDynamicCourseFileNames, handleViewFile } from "@/lib/utils";
 import Modal from "@/components/ui/modal/Modal";
+import Spinner from "@/components/ui/Spinner"; // Custom Spinner import
+import { fetchDynamicCourseFileNames, handleViewFile } from "@/lib/utils";
 
 export default function CourseFilesViewPage() {
   const [courseFiles, setCourseFiles] = useState([]);
   const [columns, setColumns] = useState([{ key: "item", label: "Item" }]);
-  const [loading, setLoading] = useState(true);
+  const [tableLoading, setTableLoading] = useState(false); // Table-specific loading state
   const [error, setError] = useState(null);
   const [modalOpen, setModalOpen] = useState(false); // State to manage modal
   const [modalExamFiles, setModalExamFiles] = useState([]); // Data for modal
 
+  // Function to fetch course files from the API
+  const fetchCourseFiles = async () => {
+    setTableLoading(true); // Start table loading spinner
+    try {
+      const response = await fetch("/api/course/user/viewCourseFiles");
+      if (!response.ok) throw new Error(`Error: ${response.status}`);
+
+      const data = await response.json();
+      setCourseFiles(data.courseFiles || []);
+
+      // Dynamically generate columns based on the course file names
+      const dynamicCourseFileNames = fetchDynamicCourseFileNames(
+        data.courseFiles,
+      );
+      setColumns([{ key: "item", label: "Item" }, ...dynamicCourseFileNames]);
+
+      setTableLoading(false); // Stop table loading spinner
+    } catch (err) {
+      setError(err.message);
+      setTableLoading(false); // Stop spinner in case of error
+    }
+  };
+
+  // Fetch data when component mounts
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await fetch("/api/course/user/viewCourseFiles");
-        if (!response.ok) throw new Error(`Error: ${response.status}`);
-
-        const data = await response.json();
-        setCourseFiles(data.courseFiles || []);
-
-        // Dynamically generate columns based on the course file names
-        const dynamicCourseFileNames = fetchDynamicCourseFileNames(
-          data.courseFiles,
-        );
-        setColumns([{ key: "item", label: "Item" }, ...dynamicCourseFileNames]);
-
-        setLoading(false);
-      } catch (err) {
-        setError(err.message);
-        setLoading(false);
-      }
-    };
-
-    fetchData();
+    fetchCourseFiles();
   }, []);
 
-  if (loading) {
-    return <div>Loading course files...</div>; // Loader only inside the table body
-  }
-
+  // Handle error rendering
   if (error) {
     return <div>Error: {error}</div>;
   }
@@ -65,7 +66,7 @@ export default function CourseFilesViewPage() {
         acc[file.courseFileName] = file.finalGrades
           ? {
               isLink: true,
-              label: "View Final Grades",
+              label: "View File",
               action: () => handleViewFile(file.finalGrades),
             }
           : "Not Uploaded";
@@ -78,7 +79,7 @@ export default function CourseFilesViewPage() {
         acc[file.courseFileName] = file.summaryObe
           ? {
               isLink: true,
-              label: "View Summary of OBE",
+              label: "View File",
               action: () => handleViewFile(file.summaryObe),
             }
           : "Not Uploaded";
@@ -91,7 +92,7 @@ export default function CourseFilesViewPage() {
         acc[file.courseFileName] = file.insFeedback
           ? {
               isLink: true,
-              label: "View Feedback",
+              label: "View File",
               action: () => handleViewFile(file.insFeedback),
             }
           : "Not Uploaded";
@@ -104,7 +105,7 @@ export default function CourseFilesViewPage() {
         acc[file.courseFileName] = file.courseOutline
           ? {
               isLink: true,
-              label: "View Course Outline",
+              label: "View File",
               action: () => handleViewFile(file.courseOutline),
             }
           : "Not Uploaded";
@@ -118,7 +119,7 @@ export default function CourseFilesViewPage() {
           file.midExams && file.midExams.length
             ? {
                 isLink: true,
-                label: `View Exams (${file.midExams.length})`,
+                label: `View File (${file.midExams.length})`,
                 action: () => {
                   setModalExamFiles(file.midExams);
                   setModalOpen(true); // Open modal with mid exam data
@@ -135,7 +136,7 @@ export default function CourseFilesViewPage() {
           file.quizExams && file.quizExams.length
             ? {
                 isLink: true,
-                label: `View Exams (${file.quizExams.length})`,
+                label: `View File (${file.quizExams.length})`,
                 action: () => {
                   setModalExamFiles(file.quizExams);
                   setModalOpen(true); // Open modal with quiz exam data
@@ -151,10 +152,10 @@ export default function CourseFilesViewPage() {
         acc[file.courseFileName] = file.finalExam
           ? {
               isLink: true,
-              label: "View Exam",
+              label: "View File",
               action: () => {
                 setModalExamFiles(file.finalExam);
-                setModalOpen(true); // Open modal with quiz exam data
+                setModalOpen(true); // Open modal with final exam data
               },
             }
           : "Not Uploaded";
@@ -199,17 +200,26 @@ export default function CourseFilesViewPage() {
         </BreadcrumbList>
       </Breadcrumb>
 
-      <h2 className="text-2xl font-bold mb-4">Uploaded Course Files</h2>
+      <div className="flex items-center justify-between mt-6">
+        <h2 className="text-xl font-semibold text-zinc-700 dark:text-white mb-4">
+          Uploaded Course Files
+        </h2>
+        <button
+          className="bg-blue-500 text-white px-3 py-1 rounded-md text-sm font-medium hover:bg-blue-600 transition"
+          onClick={fetchCourseFiles}
+        >
+          Refresh Table
+        </button>
+      </div>
 
-      <button
-        className="bg-blue-500 text-white px-4 py-2 rounded mb-4"
-        onClick={() => window.location.reload()}
-      >
-        Refresh Table
-      </button>
-
-      <div className="overflow-x-auto">
-        <Table columns={columns} data={tableData} />
+      <div className="overflow-x-auto mt-4">
+        {tableLoading ? (
+          <div className="flex justify-center items-center h-64">
+            <Spinner /> {/* Spinner component centered while loading */}
+          </div>
+        ) : (
+          <Table columns={columns} data={tableData} />
+        )}
       </div>
 
       {/* Modal for showing exam files */}
