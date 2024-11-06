@@ -1,15 +1,14 @@
-// File: /src/app/dashboard/courseFiles/_components/CourseFileForm.js
-import { useForm } from "react-hook-form";
-import { yupResolver } from "@hookform/resolvers/yup";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { courseFileNameSchema } from "@/yup/courseFileNameSchema";
+// File: src/app/dashboard/courseFiles/_components/CourseFileForm.jsx
 
-export default function CourseFileForm({
-  onSubmit,
-  onSearch,
-  defaultCourseFileName,
-}) {
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { courseFileNameSchema } from "@/yup/courseFileNameSchema";
+import { yupResolver } from "@hookform/resolvers/yup";
+import { useForm } from "react-hook-form";
+
+
+
+const CourseFileForm = ({ onSubmit, onSearch, defaultCourseFileName }) => {
   const {
     register,
     handleSubmit,
@@ -20,19 +19,22 @@ export default function CourseFileForm({
   });
 
   const handleFormSubmit = (data) => onSubmit(data);
+  const handleSearchSubmit = (data) => onSearch(data);
 
   return (
     <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4">
       <div>
-        <label htmlFor="courseFileName">Course File Name</label>
         <Input
           type="text"
           id="courseFileName"
+          label="Course File Name"
           placeholder="Enter course file name"
           {...register("courseFileName")}
         />
         {errors.courseFileName && (
-          <p className="text-red-500">{errors.courseFileName.message}</p>
+          <p className="text-red-500 text-sm">
+            {errors.courseFileName.message}
+          </p>
         )}
       </div>
 
@@ -41,7 +43,7 @@ export default function CourseFileForm({
         <Button
           type="button"
           variant="outline"
-          onClick={handleSubmit(onSearch)}
+          onClick={handleSubmit(handleSearchSubmit)}
           className="bg-blue-500 text-white"
         >
           Search Course File
@@ -49,4 +51,6 @@ export default function CourseFileForm({
       </div>
     </form>
   );
-}
+};
+
+export default CourseFileForm;
