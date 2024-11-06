@@ -1,13 +1,13 @@
+// src/app/layout.js
 
 import { Inter } from "next/font/google";
-// import { GeistSans } from "geist/font/sans";
 import "./globals.css";
 import { Navbar } from "@/components/navbar";
 import { Providers } from "@/components/providers";
 import { ThemeProvider } from "../providers/theme-provider";
+import { CourseFileProvider } from "@/context/CourseFileContext"; // Import CourseFileProvider
 
 const inter = Inter({ subsets: ["latin"] });
-// const geistSans = GeistSans();
 
 export const metadata = {
   metadataBase: new URL(
@@ -44,8 +44,11 @@ export default function RootLayout({ children }) {
       <body className={`${inter.className}`}>
         <Providers>
           <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-            
-            {children}
+            <CourseFileProvider>
+              {" "}
+              {/* Wrap with CourseFileProvider */}
+              {children}
+            </CourseFileProvider>
           </ThemeProvider>
         </Providers>
       </body>

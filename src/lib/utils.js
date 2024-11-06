@@ -16,6 +16,8 @@ export function fetchDynamicCourseFileNames(courseFiles) {
   }));
 }
 
+// File: /src/lib/utils.js
+
 // Helper function to handle viewing file by generating signed URL
 export async function handleViewFile(filePath) {
   try {
@@ -32,8 +34,10 @@ export async function handleViewFile(filePath) {
     }
 
     const data = await response.json();
-    window.open(data.signedUrl, "_blank"); // Open the signed URL in a new tab
+    return data.signedUrl; // Return the signed URL
   } catch (error) {
     console.error("Error generating signed URL:", error);
+    return null;
   }
 }
+

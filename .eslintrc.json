@@ -1,3 +1,11 @@
+
+
+// .eslintrc.json
 {
-  "extends": "next/core-web-vitals"
+  "extends": ["next/core-web-vitals","eslint:recommended", "plugin:react/recommended"],
+  "plugins": ["react", "tailwindcss"],
+  "rules": {
+    "bem-helper/camel-case": "off",
+    "bem-helper/kebab-case": "off"
+  }
 }

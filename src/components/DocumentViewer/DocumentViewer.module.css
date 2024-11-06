@@ -1,0 +1,174 @@
+/* File: src/components/DocumentViewer/DocumentViewer.module.css */
+
+/* Overlay covers the entire screen with a semi-transparent background */
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    /* Semi-transparent black */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+/* Loader Container centers the spinner */
+.loaderContainer {
+    position: absolute;
+    z-index: 1001;
+}
+
+/* Viewer Container adjusts to screen size */
+.viewerContainer {
+    position: relative;
+    width: 90%;
+    height: 90%;
+    max-width: 1200px;
+    max-height: 800px;
+    background-color: #ffffff;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+    display: flex;
+    flex-direction: column;
+}
+
+/* Header with File Name and Action Buttons */
+.header {
+    flex: 0 0 auto;
+    background-color: #f1f1f1;
+    padding: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: relative;
+}
+
+/* File Name styling */
+.fileName {
+    flex: 1;
+    font-size: 16px;
+    font-weight: 600;
+    color: #333333;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+/* Action Buttons Container */
+.actionButtons {
+    display: flex;
+    gap: 10px;
+}
+
+/* Icon Button styling */
+.iconButton {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s;
+}
+
+.iconButton:hover {
+    transform: scale(1.1);
+}
+
+/* Icon styling */
+.icon {
+    height: 24px;
+    width: 24px;
+    color: #333333;
+    transition: color 0.2s;
+}
+
+.iconButton:hover .icon {
+    color: #3498db;
+}
+
+/* Document Container fills the remaining space */
+.documentContainer {
+    flex: 1 1 auto;
+    width: 100%;
+    height: 100%;
+}
+
+/* Responsive iframe */
+.iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+
+/* Error Message Styling */
+.errorMessage {
+    position: absolute;
+    bottom: 20px;
+    left: 0;
+    right: 0;
+    text-align: center;
+    z-index: 1002;
+    color: #ffffff;
+    background-color: rgba(0, 0, 0, 0.6);
+    padding: 10px;
+    border-radius: 4px;
+}
+
+/* Refresh Button Styling within Error Message */
+.refreshButton {
+    background-color: #ffffff;
+    color: #333333;
+    border: none;
+    padding: 8px 16px;
+    margin-top: 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.refreshButton:hover {
+    background-color: #3498db;
+    color: #ffffff;
+}
+
+.refreshIcon {
+    height: 20px;
+    width: 20px;
+    margin-right: 8px;
+}
+
+/* Media Queries for Responsiveness */
+@media (max-width: 768px) {
+    .viewerContainer {
+        width: 100%;
+        height: 100%;
+        max-width: none;
+        max-height: none;
+        border-radius: 0;
+    }
+
+    .header {
+        padding: 8px;
+    }
+
+    .fileName {
+        font-size: 14px;
+    }
+
+    .icon {
+        height: 20px;
+        width: 20px;
+    }
+
+    .actionButtons {
+        gap: 8px;
+    }
+}

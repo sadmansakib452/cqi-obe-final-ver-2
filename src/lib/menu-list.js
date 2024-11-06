@@ -205,9 +205,9 @@ export function getMenuList(pathname) {
       groupLabel: "Course Files",
       menus: [
         {
-          href: "/dashboard/upload-course-file",
-          label: "Upload Course File",
-          active: pathname.includes("/upload-course-file"),
+          href: "/dashboard/courseFiles",
+          label: "Course Files",
+          active: pathname.includes("/courseFiles"),
           icon: () => <FontAwesomeIcon icon={faFileArrowUp} />,
           submenus: [],
         },

@@ -1,11 +1,17 @@
+// File: /app/api/auth/signout.js (or wherever signoutUserAction is located)
 "use server";
-
-import { signOut } from "@/auth";
+import { signOut } from "next-auth/react";
 
 export const signoutUserAction = async () => {
   try {
-    await signOut({ redirect: false });
+    // Immediate clearing of localStorage before signOut finishes
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("tableData");
+      localStorage.removeItem("courseFileName");
+    }
+
+    await signOut({ redirect: true });
   } catch (error) {
-    console.error(error);
+    console.error("Logout error:", error);
   }
 };

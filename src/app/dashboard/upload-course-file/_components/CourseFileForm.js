@@ -1,4 +1,4 @@
-// src/app/dashboard/upload-course-file/_components/CourseFileForm.js
+// src/app/dashboard/courseFiles/_components/CourseFileForm.js
 
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";

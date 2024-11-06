@@ -20,9 +20,10 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "../ui/tooltip";
-import { signoutUserAction } from "@/actions/signout-user-action";
+
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
+import { useCourseFile } from "@/context/CourseFileContext";
 // import { email } from "valibot";
 
 export function UserNav() {
@@ -30,10 +31,9 @@ export function UserNav() {
 
   const router = useRouter();
 
-  const handleSignOut = async () => {
-    await signoutUserAction();
-    router.push("/"); // Redirect to the home page
-  };
+  const {logoutHandler} = useCourseFile()
+
+ 
   return (
     <DropdownMenu>
       <TooltipProvider disableHoverableContent>
@@ -91,7 +91,7 @@ export function UserNav() {
         <DropdownMenuSeparator />
         <DropdownMenuItem
           className="hover:cursor-pointer"
-          onClick={handleSignOut}
+          onClick={logoutHandler}
         >
           <LogOut className="w-4 h-4 mr-3 text-muted-foreground" />
           Sign out
