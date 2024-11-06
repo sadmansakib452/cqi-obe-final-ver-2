@@ -2,14 +2,8 @@
 
 "use client";
 
-import React, { useState, Fragment } from "react";
-import {
-  EyeIcon,
-  ArrowPathIcon,
-  TrashIcon,
-  ChevronDownIcon,
-  ArrowUpTrayIcon,
-} from "@heroicons/react/24/solid";
+import React, { useState } from "react";
+import { DocumentChartBarIcon, MagnifyingGlassIcon } from "@heroicons/react/24/solid";
 import DocumentViewer from "@/components/DocumentViewer/DocumentViewer";
 import { motion, AnimatePresence } from "framer-motion";
 import useSignedUrl from "@/hooks/useSignedUrl";
@@ -25,6 +19,11 @@ import Step7Dialog from "./dialogs/Step7Dialog";
 import Step8Dialog from "./dialogs/Step8Dialog";
 import Step9Dialog from "./dialogs/Step9Dialog";
 
+// Import extracted subcomponents
+import SingleFileRow from "./SingleFileRow";
+import ExamRow from "./ExamRow";
+import ReviewModal from "./ReviewModal";
+
 /**
  * Capitalizes the first letter of a string.
  *
@@ -33,322 +32,7 @@ import Step9Dialog from "./dialogs/Step9Dialog";
  */
 const capitalize = (str) => str.charAt(0).toUpperCase() + str.slice(1);
 
-/**
- * Checks if a file is viewable based on its extension.
- *
- * @param {string} filePath - The path of the file.
- * @returns {boolean} - True if the file is viewable, else false.
- */
-const isViewable = (filePath) => {
-  const viewableExtensions = [
-    ".pdf",
-    ".jpg",
-    ".jpeg",
-    ".png",
-    ".gif",
-    ".svg",
-    ".bmp",
-  ];
-  return viewableExtensions.some((ext) => filePath.toLowerCase().endsWith(ext));
-};
 
-/**
- * Renders a table row for a single file item.
- *
- * @param {Object} props - Component props.
- * @param {Object} props.row - The row data.
- * @param {number} props.index - The index of the row.
- * @param {Function} props.handleViewFile - Function to handle viewing files.
- * @param {Function} props.openUploadDialog - Function to open upload dialogs.
- * @param {boolean} props.loading - Loading state.
- * @returns {JSX.Element} - The table row element.
- */
-const SingleFileRow = ({
-  row,
-  index,
-  handleViewFile,
-  openUploadDialog,
-  loading,
-}) => (
-  <tr key={index} className={index % 2 === 0 ? "bg-gray-50" : "bg-white"}>
-    {/* Item Name */}
-    <td className="px-6 py-4 text-sm font-medium text-gray-900 w-1/3">
-      {row.item}
-    </td>
-    {/* Status */}
-    <td className="px-6 py-4 w-1/3">
-      <span
-        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-          row.status === "Uploaded"
-            ? "bg-green-100 text-green-800"
-            : "bg-red-100 text-red-800"
-        }`}
-      >
-        {row.status}
-      </span>
-    </td>
-    {/* Actions */}
-    <td className="px-6 py-4 text-sm text-gray-500 w-1/3">
-      <div className="flex space-x-4">
-        {row.path ? (
-          <>
-            {/* View Button */}
-            {isViewable(row.path) && (
-              <button
-                onClick={() => handleViewFile(row.path, row.item)}
-                className="text-gray-600 hover:text-blue-600"
-                title="View"
-                disabled={loading}
-              >
-                <EyeIcon className="h-5 w-5" />
-              </button>
-            )}
-            {/* Re-upload Button */}
-            <button
-              onClick={() => openUploadDialog(row.step)} // Only step is needed
-              className="text-gray-600 hover:text-blue-600"
-              title="Re-upload"
-              disabled={loading}
-            >
-              <ArrowPathIcon className="h-5 w-5" />
-            </button>
-            {/* Delete Button */}
-            <button
-              onClick={() =>
-                alert(
-                  `Delete functionality for ${row.item} is not implemented yet.`,
-                )
-              }
-              className="text-gray-600 hover:text-red-600"
-              title="Delete"
-              disabled
-            >
-              <TrashIcon className="h-5 w-5" />
-            </button>
-          </>
-        ) : (
-          // Upload Button
-          <button
-            onClick={() => openUploadDialog(row.step)} // Only step is needed
-            className="text-gray-600 hover:text-blue-600"
-            title="Upload"
-            disabled={loading}
-          >
-            <ArrowUpTrayIcon className="h-5 w-5" />
-          </button>
-        )}
-      </div>
-    </td>
-  </tr>
-);
-
-/**
- * Renders a table row for an exam item with expandable exams.
- *
- * @param {Object} props - Component props.
- * @param {string} props.examType - The type of the exam (e.g., "Mid Exam").
- * @param {Array} props.exams - List of exams under this exam type.
- * @param {number} props.index - The index of the row.
- * @param {Function} props.handleViewFile - Function to handle viewing files.
- * @param {Function} props.openUploadDialog - Function to open upload dialogs.
- * @param {Function} props.capitalize - Function to capitalize strings.
- * @param {string|null} props.expandedExamType - Currently expanded exam type.
- * @param {Function} props.setExpandedExamType - Function to set expanded exam type.
- * @param {boolean} props.loading - Loading state.
- * @returns {JSX.Element} - The table row element.
- */
-const ExamRow = ({
-  examType,
-  exams,
-  index,
-  handleViewFile,
-  openUploadDialog,
-  capitalize,
-  expandedExamType,
-  setExpandedExamType,
-  loading,
-}) => {
-  const status = getExamStatus(exams);
-  const isExpanded = expandedExamType === examType;
-
-  // Determine badge color based on status
-  const badgeClass =
-    status === "All Uploaded"
-      ? "bg-green-100 text-green-800"
-      : status === "Not Uploaded"
-        ? "bg-red-100 text-red-800"
-        : "bg-yellow-100 text-yellow-800";
-
-  // Determine if any files are uploaded
-  const hasUploadedFiles = exams.some(
-    (exam) => exam.question || exam.highest || exam.average || exam.marginal,
-  );
-
-  // Determine if all files are uploaded
-  const allUploaded = status === "All Uploaded";
-
-  return (
-    <Fragment key={index}>
-      {/* Exam Type Row */}
-      <tr className="bg-gray-50">
-        {/* Exam Type Name */}
-        <td className="px-6 py-4 text-sm font-medium text-gray-900 w-1/3">
-          {examType}
-        </td>
-        {/* Status */}
-        <td className="px-6 py-4 w-1/3">
-          <span
-            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${badgeClass}`}
-          >
-            {status}
-          </span>
-        </td>
-        {/* Actions */}
-        <td className="px-6 py-4 text-sm text-gray-500 w-1/3">
-          <div className="flex space-x-4 items-center">
-            {/* Expand/Collapse Button */}
-            <button
-              onClick={() => setExpandedExamType(isExpanded ? null : examType)}
-              className="text-gray-600 hover:text-blue-600"
-              title={isExpanded ? "Collapse" : "Expand"}
-            >
-              <ChevronDownIcon
-                className={`h-5 w-5 transform transition-transform duration-300 ${
-                  isExpanded ? "-rotate-180" : ""
-                }`}
-              />
-            </button>
-            {/* Upload/Reupload Button */}
-            <button
-              onClick={() => openUploadDialog(getStepForExam(examType))}
-              className="text-gray-600 hover:text-blue-600"
-              title={allUploaded ? "Re-upload" : "Upload"}
-              disabled={loading}
-            >
-              {allUploaded ? (
-                <ArrowPathIcon className="h-5 w-5" />
-              ) : (
-                <ArrowUpTrayIcon className="h-5 w-5" />
-              )}
-            </button>
-            {/* Conditionally Render Delete Button */}
-            {hasUploadedFiles && (
-              <button
-                onClick={() =>
-                  alert(
-                    `Delete functionality for ${examType} is not implemented yet.`,
-                  )
-                }
-                className="text-gray-600 hover:text-red-600"
-                title="Delete"
-                disabled
-              >
-                <TrashIcon className="h-5 w-5" />
-              </button>
-            )}
-          </div>
-        </td>
-      </tr>
-      {/* Expanded Exam Rows with Animation */}
-      <AnimatePresence>
-        {isExpanded &&
-          exams.map((exam, idx) => (
-            <motion.tr
-              key={idx}
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: "auto" }}
-              exit={{ opacity: 0, height: 0 }}
-              transition={{ duration: 0.3 }}
-              className="bg-white"
-            >
-              {/* Exam Name */}
-              <td className="px-6 py-4 pl-12 text-sm font-medium text-gray-900 w-1/3">
-                {examType} {idx + 1}
-              </td>
-              {/* Exam Status */}
-              <td className="px-6 py-4 w-1/3">
-                {exam.question &&
-                exam.highest &&
-                exam.average &&
-                exam.marginal ? (
-                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                    Uploaded
-                  </span>
-                ) : (
-                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
-                    Incomplete
-                  </span>
-                )}
-              </td>
-              {/* Exam Actions */}
-              <td className="px-6 py-4 text-sm text-gray-500 w-1/3">
-                <div className="flex space-x-2">
-                  {/* View Buttons for Each FileType */}
-                  {["question", "highest", "average", "marginal"].map(
-                    (fileType) => (
-                      <button
-                        key={fileType}
-                        onClick={() => {
-                          if (exam[fileType]) {
-                            handleViewFile(
-                              exam[fileType],
-                              `${examType} ${idx + 1} - ${capitalize(fileType)}`,
-                            );
-                          }
-                        }}
-                        className="text-gray-600 hover:text-blue-600"
-                        title={`View ${capitalize(fileType)}`}
-                        disabled={!exam[fileType] || loading}
-                      >
-                        <EyeIcon className="h-5 w-5" />
-                      </button>
-                    ),
-                  )}
-                </div>
-              </td>
-            </motion.tr>
-          ))}
-      </AnimatePresence>
-    </Fragment>
-  );
-};
-
-/**
- * Determines the corresponding step based on the exam type.
- *
- * @param {string} examType - The type of the exam (e.g., "Mid Exam").
- * @returns {string|null} - The corresponding step identifier or null if undefined.
- */
-const getStepForExam = (examType) => {
-  switch (examType) {
-    case "Mid Exam":
-      return "step5";
-    case "Quiz Exam":
-      return "step6";
-    case "Final Exam":
-      return "step7";
-    default:
-      return null;
-  }
-};
-
-/**
- * Calculates the status of exams based on the number of completed uploads.
- *
- * @param {Array} exams - List of exam files.
- * @returns {string} - Status message.
- */
-const getExamStatus = (exams) => {
-  const totalExams = exams.length;
-  if (totalExams === 0) return "Not Uploaded";
-
-  const completedExams = exams.filter(
-    (exam) => exam.question && exam.highest && exam.average && exam.marginal,
-  ).length;
-
-  if (completedExams === totalExams) return "All Uploaded";
-  return `${completedExams} of ${totalExams} Uploaded`;
-};
 
 /**
  * Renders the CourseFileTable component.
@@ -373,6 +57,7 @@ const CourseFileTable = ({
   const [currentDirectUrl, setCurrentDirectUrl] = useState(null); // Direct URL for download and print
   const [currentFileName, setCurrentFileName] = useState(""); // Name of the current file
   const [currentDialog, setCurrentDialog] = useState(null); // Currently open StepXDialog { step }
+  const [isReviewOpen, setIsReviewOpen] = useState(false); // Controls the ReviewModal visibility
 
   const { getSignedUrl, loading } = useSignedUrl();
 
@@ -380,7 +65,12 @@ const CourseFileTable = ({
   console.log("CourseFileTable - tableData:", tableData);
 
   // If no table data is provided, display a message
-  if (!tableData) return <p>No course file data to display.</p>;
+  if (!tableData)
+    return (
+      <p className="text-gray-900 dark:text-gray-100">
+        No course file data to display.
+      </p>
+    );
 
   // Define the table rows based on the provided data
   const tableRows = [
@@ -456,14 +146,19 @@ const CourseFileTable = ({
    * @param {string} fileName - The name of the file.
    */
   const handleViewFile = async (filePath, fileName) => {
-    const response = await getSignedUrl(filePath);
-    if (response && response.viewerUrl && response.directUrl) {
-      setCurrentViewerUrl(response.viewerUrl);
-      setCurrentDirectUrl(response.directUrl);
-      setCurrentFileName(fileName || "Document");
-      setIsViewerOpen(true);
-    } else {
-      alert("Unable to view the file at this time.");
+    try {
+      const response = await getSignedUrl(filePath);
+      if (response && response.viewerUrl && response.directUrl) {
+        setCurrentViewerUrl(response.viewerUrl);
+        setCurrentDirectUrl(response.directUrl);
+        setCurrentFileName(fileName || "Document");
+        setIsViewerOpen(true);
+      } else {
+        alert("Unable to view the file at this time.");
+      }
+    } catch (error) {
+      console.error("Error viewing file:", error);
+      alert("An error occurred while trying to view the file.");
     }
   };
 
@@ -548,7 +243,7 @@ const CourseFileTable = ({
   const fetchCourseFileData = async (fileName) => {
     try {
       const response = await fetch(
-        `/api/course/user/viewCourseFileByName?courseFileName=${fileName}`,
+        `/api/course/user/viewCourseFileByName?courseFileName=${encodeURIComponent(fileName)}`,
       );
 
       if (response.ok) {
@@ -556,30 +251,49 @@ const CourseFileTable = ({
         setTableData(result.courseFile); // Update table data
       } else {
         console.error("Error fetching course file data after upload.");
+        alert("Failed to fetch course file data.");
       }
     } catch (error) {
       console.error("Error fetching course file data:", error);
+      alert("An error occurred while fetching course file data.");
     }
   };
 
   return (
     <div className="overflow-x-auto">
+      {/* Review Button */}
+      <div className="flex justify-end mb-4">
+        <button
+          onClick={() => setIsReviewOpen(true)}
+          className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none dark:bg-blue-700 dark:hover:bg-blue-800"
+        >
+          <DocumentChartBarIcon className="h-5 w-5" />
+          <span>Review</span>
+        </button>
+      </div>
+
       {/* Table */}
-      <table className="min-w-full divide-y divide-gray-200 table-fixed">
+      <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700 table-fixed">
         {/* Table Header */}
-        <thead className="bg-gray-200">
+        <thead className="bg-gray-200 dark:bg-gray-700">
           <tr>
             <th
               colSpan="3"
-              className="text-center px-6 py-3 text-gray-800 bg-gray-100 text-xl"
+              className="text-center px-6 py-3 text-gray-800 dark:text-gray-100 bg-gray-100 dark:bg-gray-800 text-xl"
             >
               Course File: {courseFileName}
             </th>
           </tr>
           <tr>
-            <th className="px-6 py-3 text-left text-gray-700 w-1/3">Item</th>
-            <th className="px-6 py-3 text-left text-gray-700 w-1/3">Status</th>
-            <th className="px-6 py-3 text-left text-gray-700 w-1/3">Action</th>
+            <th className="px-6 py-3 text-left text-gray-700 dark:text-gray-200 w-1/3">
+              Item
+            </th>
+            <th className="px-6 py-3 text-left text-gray-700 dark:text-gray-200 w-1/3">
+              Status
+            </th>
+            <th className="px-6 py-3 text-left text-gray-700 dark:text-gray-200 w-1/3">
+              Action
+            </th>
           </tr>
         </thead>
         {/* Table Body */}
@@ -629,8 +343,19 @@ const CourseFileTable = ({
           fileName={currentFileName}
         />
       )}
+
+      {/* Review Modal */}
+      <ReviewModal
+        isOpen={isReviewOpen}
+        onClose={() => setIsReviewOpen(false)}
+        tableData={tableData}
+        handleViewFile={handleViewFile}
+        loading={loading}
+      />
     </div>
   );
 };
+
+
 
 export default CourseFileTable;

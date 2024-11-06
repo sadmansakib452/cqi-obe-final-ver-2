@@ -57,6 +57,10 @@ const allowedFileConfigurations = {
     allowedMimeTypes: ["application/pdf", "application/msword"],
     maxSizeInBytes: 3 * 1024 * 1024, // 3 MB limit
   },
+  "INSTRUCTOR-FEEDBACK": {
+    allowedMimeTypes: ["application/pdf", "application/msword", "text/plain"],
+    maxSizeInBytes: 3 * 1024 * 1024, // 3 MB limit
+  },
 };
 
 // -------- Step 2: Utility Functions --------

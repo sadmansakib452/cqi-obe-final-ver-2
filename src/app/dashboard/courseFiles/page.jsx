@@ -198,18 +198,7 @@ export default function CourseFilePage() {
             </div>
           )}
 
-          {/* Review Button */}
-          {tableData && (
-            <div className="flex justify-end mb-4">
-              <Button
-                onClick={handleOpenReview}
-                className="flex items-center space-x-2 bg-yellow-500 hover:bg-yellow-600 text-white"
-              >
-                <DocumentChartBarIcon className="h-5 w-5" />
-                <span>Review</span>
-              </Button>
-            </div>
-          )}
+         
 
           {/* Course File Table */}
           <div className="overflow-x-auto mt-4">

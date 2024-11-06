@@ -13,7 +13,7 @@ import DropzoneInput from "@/components/forms/DropzoneInput";
 import InstructorFeedback from "./InstructorFeedback.jsx"; // Form component
 import { Button } from "@/components/ui/button";
 
-export default function Step3Dialog({ courseFileName, closeDialog }) {
+export default function Step3Dialog({ courseFileName, closeDialog, userId }) {
   const [uploadStatus, setUploadStatus] = useState(null);
   const [isPdfUpload, setIsPdfUpload] = useState(true); // Toggle between PDF and Form
 
@@ -49,6 +49,7 @@ export default function Step3Dialog({ courseFileName, closeDialog }) {
   // Handle form submission
   const onSubmit = async (data) => {
     const formData = new FormData();
+    formData.append("userId", userId);
 
     if (isPdfUpload && data.file) {
       renameFile(); // Rename file before sending
