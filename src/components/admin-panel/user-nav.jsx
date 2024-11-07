@@ -1,102 +1,96 @@
 "use client";
 
 import Link from "next/link";
-import { LayoutGrid, LogOut, User } from "lucide-react";
-
-import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
-import { Button } from "../ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "../ui/dropdown-menu";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "../ui/tooltip";
-
-import { useRouter } from "next/navigation";
+import { LayoutGrid, LogOut, User, MoreVertical } from "lucide-react"; // Use MoreVertical for vertical three-dot icon
+import { Menu } from "@headlessui/react"; // Import Headless UI Menu
 import { useSession } from "next-auth/react";
 import { useCourseFile } from "@/context/CourseFileContext";
-// import { email } from "valibot";
 
 export function UserNav() {
   const session = useSession();
+  const { logoutHandler } = useCourseFile();
 
-  const router = useRouter();
-
-  const {logoutHandler} = useCourseFile()
-
- 
   return (
-    <DropdownMenu>
-      <TooltipProvider disableHoverableContent>
-        <Tooltip delayDuration={100}>
-          <TooltipTrigger asChild>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="outline"
-                className="relative h-8 w-8 rounded-full"
-              >
-                <Avatar className="h-8 w-8">
-                  {session?.data?.user?.image ? (
-                    // If the image exists, show the image
-                    <AvatarImage src={session.data.user.image} alt="Avatar" />
-                  ) : (
-                    // If no image, show the first letter of the user's name
-                    <AvatarFallback className="bg-transparent">
-                      {session?.data?.user?.name?.charAt(0)}
-                    </AvatarFallback>
-                  )}
-                </Avatar>
-              </Button>
-            </DropdownMenuTrigger>
-          </TooltipTrigger>
-          <TooltipContent side="bottom">Profile</TooltipContent>
-        </Tooltip>
-      </TooltipProvider>
+    <Menu as="div" className="relative inline-block text-left">
+      <div className="flex items-center">
+        {/* Tooltip container */}
+        <div className="group relative">
+          {/* Three-dot button as Menu Trigger */}
+          <Menu.Button className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition">
+            <MoreVertical className="w-5 h-5 text-muted-foreground" />{" "}
+            {/* Vertical three-dot icon */}
+          </Menu.Button>
 
-      <DropdownMenuContent className="w-56" align="end" forceMount>
-        <DropdownMenuLabel className="font-normal">
-          <div className="flex flex-col space-y-1">
-            <p className="text-sm font-medium leading-none">
-              {session?.data?.user?.name}
-            </p>
-            <p className="text-xs leading-none text-muted-foreground">
-              {session?.data?.user?.email}
-            </p>
-          </div>
-        </DropdownMenuLabel>
-        <DropdownMenuSeparator />
-        <DropdownMenuGroup>
-          <DropdownMenuItem className="hover:cursor-pointer" asChild>
-            <Link href="/dashboard" className="flex items-center">
-              <LayoutGrid className="w-4 h-4 mr-3 text-muted-foreground" />
-              Dashboard
-            </Link>
-          </DropdownMenuItem>
-          <DropdownMenuItem className="hover:cursor-pointer" asChild>
-            <Link href="/account" className="flex items-center">
-              <User className="w-4 h-4 mr-3 text-muted-foreground" />
-              Account
-            </Link>
-          </DropdownMenuItem>
-        </DropdownMenuGroup>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem
-          className="hover:cursor-pointer"
-          onClick={logoutHandler}
-        >
-          <LogOut className="w-4 h-4 mr-3 text-muted-foreground" />
-          Sign out
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
+          {/* Tooltip - positioned at the bottom */}
+          <span className="absolute top-full left-1/2 transform -translate-x-1/2 mt-1 opacity-0 group-hover:opacity-100 transition bg-gray-800 text-white text-xs rounded px-2 py-1">
+            Menu
+          </span>
+        </div>
+      </div>
+
+      {/* Dropdown Menu */}
+      <Menu.Items className="absolute right-0 mt-2 w-56 origin-top-right rounded-md shadow-lg bg-white dark:bg-gray-800 focus:outline-none">
+        <div className="py-1">
+          <Menu.Item>
+            {({ active }) => (
+              <div className="px-4 py-2">
+                <p className="text-sm font-medium">
+                  {session?.data?.user?.name}
+                </p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                  {session?.data?.user?.email}
+                </p>
+              </div>
+            )}
+          </Menu.Item>
+
+          <div className="border-t border-gray-200 dark:border-gray-700 my-1"></div>
+
+          <Menu.Item>
+            {({ active }) => (
+              <Link
+                href="/dashboard"
+                className={`${
+                  active ? "bg-gray-100 dark:bg-gray-700" : ""
+                } flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-300`}
+              >
+                <LayoutGrid className="w-4 h-4 mr-3" />
+                Dashboard
+              </Link>
+            )}
+          </Menu.Item>
+
+          <Menu.Item>
+            {({ active }) => (
+              <Link
+                href="/account"
+                className={`${
+                  active ? "bg-gray-100 dark:bg-gray-700" : ""
+                } flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-300`}
+              >
+                <User className="w-4 h-4 mr-3" />
+                Account
+              </Link>
+            )}
+          </Menu.Item>
+
+          <div className="border-t border-gray-200 dark:border-gray-700 my-1"></div>
+
+          <Menu.Item>
+            {({ active }) => (
+              <button
+                onClick={logoutHandler}
+                className={`${
+                  active ? "bg-gray-100 dark:bg-gray-700" : ""
+                } flex items-center w-full px-4 py-2 text-sm text-gray-700 dark:text-gray-300`}
+              >
+                <LogOut className="w-4 h-4 mr-3" />
+                Sign out
+              </button>
+            )}
+          </Menu.Item>
+        </div>
+      </Menu.Items>
+    </Menu>
   );
 }

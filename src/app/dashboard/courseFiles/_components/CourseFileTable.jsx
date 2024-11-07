@@ -9,7 +9,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import useSignedUrl from "@/hooks/useSignedUrl";
 
 // Import all StepXDialog components
-import Step1Dialog from "./dialogs/Step1Dialog";
+
 import Step2Dialog from "./dialogs/Step2Dialog";
 import Step3Dialog from "./dialogs/Step3Dialog";
 import Step4Dialog from "./dialogs/Step4Dialog";
@@ -23,6 +23,7 @@ import Step9Dialog from "./dialogs/Step9Dialog";
 import SingleFileRow from "./SingleFileRow";
 import ExamRow from "./ExamRow";
 import ReviewModal from "./ReviewModal";
+import Step1Dialog from "./dialogs/Step1Dialog";
 
 /**
  * Capitalizes the first letter of a string.
