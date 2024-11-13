@@ -212,12 +212,20 @@ export function getMenuList(pathname) {
           submenus: [],
         },
         {
+          href: "/dashboard/upload-course-file",
+          label: "Course Files (OLD)",
+          active: pathname.includes("/upload-course-file"),
+          icon: () => <FontAwesomeIcon icon={faFileArrowUp} />,
+          submenus: [],
+        },
+        {
           href: "/dashboard/view-course-files",
           label: "View Course Files",
           active: pathname.includes("/view-course-files"),
           icon: () => <FontAwesomeIcon icon={faSearch} />,
           submenus: [],
         },
+
         // {
         //   href: "#",
         //   label: "Search by semester",

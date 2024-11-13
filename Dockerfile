@@ -1,5 +1,3 @@
-# Dockerfile
-
 # Stage 1: Base setup with Node 21
 FROM node:21-alpine as base
 

@@ -1,9 +1,7 @@
-Dockerfile
-.dockerignore
 node_modules
-npm-debug.log
-README.md
-.next
-!.next/static
-!.next/standalone
 .git
+.next
+Dockerfile
+docker-compose.yml
+certbot
+nginx

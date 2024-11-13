@@ -4,30 +4,32 @@
 -- Fill the details about your website
  ==================== */
 
-const baseUrl = "https://nextlanding.rdev.pro"
+const baseUrl = "https://sadman-workbench.zapto.org";
 
 export const siteConfig = {
-  name: "Next Landing",
-  author: "redpangilinan",
+  name: "Course File Archiver",
+  author: "Sadman Sakib",
   description:
-    "Easy to setup, customizable, quick, and responsive landing page starter built with Next.js and shadcn/ui.",
+    "The Course File Archiver for East West University is a Next.js-based platform with MinIO storage, designed for efficient and secure management of academic course files, enabling fast access, organization, and storage of educational content for faculty and students.",
   keywords: [
+    "Course File Archiver",
+    "East West University",
     "Next.js",
-    "React",
-    "Tailwind CSS",
-    "Radix UI",
-    "shadcn/ui",
-    "Landing Page",
-    "Template",
-    "Starter",
+    "MinIO Storage",
+    "Academic File Management",
+    "Secure Document Storage",
+    "Educational Content Management",
+    "Digital Course Files",
+    "University Archiving System",
+    "Academic Resource Storage",
   ],
   url: {
     base: baseUrl,
-    author: "https://redpangilinan.live",
+    author: "https://sadman-workbench.zapto.org",
   },
   ogImage: `${baseUrl}/og.jpg`,
-}
+};
 
 export const contactConfig = {
-  email: "janreynald.pangilinan@gmail.com",
+  email: "sadmansakib452@gmail.com",
 }

@@ -34,7 +34,8 @@ export function Sidebar() {
 }
 
 // ProfileSection as a helper function within the same file
-function ProfileSection({ session, isOpen }) {
+export function ProfileSection({ session, isOpen }) {
+  
   return (
     <div
       className={cn(
@@ -54,6 +55,7 @@ function ProfileSection({ session, isOpen }) {
           width={isOpen ? 56 : 40} // Fixed width and height based on sidebar state
           height={isOpen ? 56 : 40}
           className="rounded-full object-cover" // Ensures circular shape and image cover
+          unoptimized // Bypass Next.js optimization for this image
         />
       ) : (
         <svg
