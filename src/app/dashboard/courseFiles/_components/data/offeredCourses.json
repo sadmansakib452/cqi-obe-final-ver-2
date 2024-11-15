@@ -1,0 +1,80 @@
+{
+  "fall-24": [
+    {
+      "Course": "CSE101",
+      "Section": 1,
+      "Faculty": "AT",
+      "Timing": "S 08:00 AM - 09:15 AM",
+      "Room No": 109,
+      "Dedicated department": null,
+      "Capacity": 46,
+      "Seat Taken": 46,
+      "Action": null,
+      "Email": "at@example.com"
+    },
+    {
+      "Course": "CSE102",
+      "Section": 2,
+      "Faculty": "AT",
+      "Timing": "T 08:00 AM - 09:15 AM",
+      "Room No": "529 (C. Lab-1)",
+      "Dedicated department": null,
+      "Capacity": 46,
+      "Seat Taken": 46,
+      "Action": null,
+      "Email": "sadmansakib452@gmail.com"
+    },
+    {
+      "Course": "CSE103",
+      "Section": 3,
+      "Faculty": "MSHQ",
+      "Timing": "W 10:00 AM - 11:15 AM",
+      "Room No": "210",
+      "Dedicated department": null,
+      "Capacity": 50,
+      "Seat Taken": 48,
+      "Action": null,
+      "Email": "sadmansakib452@gmail.com"
+    }
+  ],
+  "spring-24": [
+    {
+      "Course": "CSE201",
+      "Section": 2,
+      "Faculty": "MSHQ",
+      "Timing": "T 10:00 AM - 11:15 AM",
+      "Room No": "107",
+      "Dedicated department": null,
+      "Capacity": 50,
+      "Seat Taken": 48,
+      "Action": null,
+      "Email": "sadmansakib452@gmail.com"
+    }
+  ],
+  "summer-24": [
+    {
+      "Course": "CSE301",
+      "Section": 3,
+      "Faculty": "SAMIA",
+      "Timing": "M 08:00 AM - 09:15 AM",
+      "Room No": "530 (C. Lab-2)",
+      "Dedicated department": null,
+      "Capacity": 45,
+      "Seat Taken": 43,
+      "Action": null,
+      "Email": "sadmansakib452@gmail.com"
+    },
+    {
+      "Course": "CSE401",
+      "Section": 3,
+      "Faculty": "SAMIA",
+      "Timing": "M 08:00 AM - 09:15 AM",
+      "Room No": "530 (C. Lab-2)",
+      "Dedicated department": null,
+      "Capacity": 45,
+      "Seat Taken": 43,
+      "Action": null,
+      "Email": "sadmansakib452@gmail.com"
+    }
+  ]
+}
