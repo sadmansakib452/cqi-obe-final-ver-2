@@ -1,0 +1,52 @@
+
+{
+  "fields": [
+    {
+      "name": "department",
+      "label": "Department",
+      "type": "select",
+      "options": ["CSE", "EEE", "BBA"],
+      "defaultOption": "Select Department",
+      "validation": {
+        "required": true,
+        "message": "Department is required."
+      },
+      "dependentFields": ["semester"]
+    },
+    {
+      "name": "semester",
+      "label": "Semester",
+      "type": "select",
+      "options": [],
+      "defaultOption": "Select Semester",
+      "validation": {
+        "required": true,
+        "message": "Semester is required."
+      },
+      "dependentFields": ["course"]
+    },
+    {
+      "name": "course",
+      "label": "Course",
+      "type": "select",
+      "options": [],
+      "defaultOption": "Select Course",
+      "validation": {
+        "required": true,
+        "message": "Course is required."
+      },
+      "dependentFields": []
+    }
+  ],
+  "dataFetch": {
+    "useAPI": false,
+    "endpoints": {
+      "semester": "/api/semesters",
+      "course": "/api/courses"
+    }
+  },
+  "errorMessages": {
+    "required": "This field is required.",
+    "invalidSelection": "Please select a valid option."
+  }
+}

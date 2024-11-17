@@ -1,0 +1,35 @@
+
+{
+  "fields": [
+    {
+      "name": "department",
+      "label": "Department",
+      "type": "dropdown",
+      "validation": {
+        "required": true,
+        "message": "Please select a department."
+      },
+      "dependentFields": []
+    },
+    {
+      "name": "semester",
+      "label": "Semester",
+      "type": "dropdown",
+      "validation": {
+        "required": true,
+        "message": "Please select a semester."
+      },
+      "dependentFields": ["department"]
+    },
+    {
+      "name": "course",
+      "label": "Course",
+      "type": "dropdown",
+      "validation": {
+        "required": true,
+        "message": "Please select a course."
+      },
+      "dependentFields": ["semester"]
+    }
+  ]
+}
