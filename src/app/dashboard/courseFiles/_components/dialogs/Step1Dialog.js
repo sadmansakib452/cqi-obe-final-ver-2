@@ -71,6 +71,7 @@ const Step1Dialog = ({
     formData.append("file", data.file[0]);
     formData.append("fileType", "FINAL-GRADES");
     formData.append("userId", userId);
+   
 
     setLoading(true);
     setUploadStatus(null);

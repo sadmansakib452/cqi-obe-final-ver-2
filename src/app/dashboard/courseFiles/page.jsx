@@ -8,7 +8,6 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { ContentLayout } from "@/components/admin-panel/content-layout";
-import PlaceholderContent from "@/components/demo/placeholder-content";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -37,7 +36,7 @@ import CourseFileTable from "./_components/CourseFileTable";
  *
  * @returns {JSX.Element} The InnerContent component.
  */
-const InnerContent = () => {
+const InnerContent = ({userId}) => {
   const {
     tableData,
     courseFileName,
@@ -52,7 +51,7 @@ const InnerContent = () => {
   return (
     <ContentLayout title="Course Files">
       {/* Breadcrumb Navigation */}
-      <Breadcrumb>
+      <Breadcrumb className="mb-6">
         <BreadcrumbList>
           <BreadcrumbItem>
             <BreadcrumbLink asChild>
@@ -67,17 +66,22 @@ const InnerContent = () => {
       </Breadcrumb>
 
       {/* Main Content */}
-      <div className="bg-transparent py-8 min-h-screen transition-colors duration-300">
-        <div className="container mx-auto p-4">
+      <div className="bg-transparent min-h-screen transition-colors duration-300">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           {/* Dynamic Form */}
-          <DynamicForm />
+          <div className="mb-8">
+            <DynamicForm />
+          </div>
 
           {/* Course File Table */}
           {tableData && (
-            <CourseFileTable
-              courseFileName={courseFileName}
-              tableData={tableData}
-            />
+            <div className="mt-8">
+              <CourseFileTable
+                courseFileName={courseFileName}
+                tableData={tableData}
+                userId={userId}
+              />
+            </div>
           )}
         </div>
       </div>
@@ -104,7 +108,7 @@ const CourseFilePage = () => {
 
   return (
     <DynamicCourseFileProvider>
-      <InnerContent />
+      <InnerContent userId={session?.user?.id} />
     </DynamicCourseFileProvider>
   );
 };

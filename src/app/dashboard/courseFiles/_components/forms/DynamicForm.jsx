@@ -352,8 +352,7 @@ const DynamicForm = () => {
         </AnimatePresence>
       )}
 
-      {/* Loading Indicator */}
-      {loading && <Loader />}
+      
     </div>
   );
 };

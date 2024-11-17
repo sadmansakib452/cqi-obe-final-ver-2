@@ -6,11 +6,11 @@
       "Faculty": "AT",
       "Timing": "S 08:00 AM - 09:15 AM",
       "Room No": 109,
-      "Dedicated department": "BBA",
+      "Dedicated department": "CSE",
       "Capacity": 46,
       "Seat Taken": 46,
       "Action": null,
-      "Email": "at@example.com"
+      "Email": ""
     },
     {
       "Course": "CSE102",
@@ -62,7 +62,7 @@
       "Capacity": 45,
       "Seat Taken": 43,
       "Action": null,
-      "Email": "sadmansakib452@gmail.com"
+      "Email": "mcctuhin@ewubd.edu"
     },
     {
       "Course": "CSE401",
@@ -74,7 +74,7 @@
       "Capacity": 45,
       "Seat Taken": 43,
       "Action": null,
-      "Email": "sadmansakib452@gmail.com"
+      "Email": "mcctuhin@ewubd.edu"
     }
   ]
 }
