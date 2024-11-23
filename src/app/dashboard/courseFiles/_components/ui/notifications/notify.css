@@ -1,0 +1,16 @@
+/* Example: /courseFiles/_components/ui/notifications/notify.css */
+
+/* Error Notification */
+.toastify-error {
+  font-weight: bold;
+}
+
+/* Warning Notification */
+.toastify-warning {
+  font-weight: bold;
+}
+
+/* Information Notification */
+.toastify-info {
+  font-weight: bold;
+}

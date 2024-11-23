@@ -1,18 +1,26 @@
 // File: /courseFiles/_components/ui/Loader.jsx
 
-"use client";
-
 import React from "react";
 
-/**
- * Loader component to indicate ongoing processes.
- *
- * @returns {JSX.Element} The Loader component.
- */
 const Loader = () => {
   return (
-    <div className="flex justify-center items-center my-4">
-      <div className="w-8 h-8 border-4 border-blue-500 border-dashed rounded-full animate-spin"></div>
+    <div className="flex justify-center items-center">
+      <div className="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-12 w-12"></div>
+      <style jsx>{`
+        .loader {
+          border-top-color: #3498db;
+          animation: spin 1s infinite linear;
+        }
+
+        @keyframes spin {
+          0% {
+            transform: rotate(0deg);
+          }
+          100% {
+            transform: rotate(360deg);
+          }
+        }
+      `}</style>
     </div>
   );
 };

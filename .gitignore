@@ -35,3 +35,78 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+
+# Ignore everything inside ./python_server
+/python_server/__pycache__/
+/python_server/*.py[cod]
+/python_server/*$py.class
+
+# C extensions
+/python_server/*.so
+
+# Distribution / packaging
+/python_server/.Python
+/python_server/env/
+/python_server/venv/
+/python_server/ENV/
+/python_server/*.egg-info/
+/python_server/*.egg
+/python_server/build/
+/python_server/dist/
+
+/python_server/pip-log.txt
+/python_server/pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+/python_server/htmlcov/
+/python_server/.tox/
+/python_server/.nox/
+/python_server/.coverage
+/python_server/*.cover
+/python_server/*.py,cover
+/python_server/coverage.xml
+/python_server/*.lcov
+
+# Logs and database files
+/python_server/*.log
+/python_server/*.sqlite3
+/python_server/*.db
+
+# Environments
+/python_server/.env
+/python_server/.env.*
+
+# Jupyter Notebook
+/python_server/.ipynb_checkpoints
+
+# PyCharm files
+/python_server/.idea/
+
+/python_server/.vscode/
+
+# Docker
+/python_server/*.swp
+/python_server/*.swo
+/python_server/*.pid
+/python_server/*.pid.lock
+/python_server/docker-compose.override.yml
+
+# MacOS
+/python_server/.DS_Store
+
+# Backup files
+/python_server/*.bak
+/python_server/*.tmp
+
+# FastAPI-specific
+/python_server/static/
+/python_server/media/
+
+/python_server/celerybeat-schedule
+/python_server/*.celerybeat.pid
+
+# MyPy
+/python_server/.mypy_cache/
+
+/python_server/.pytest_cache/

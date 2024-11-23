@@ -7,23 +7,22 @@ import { useCourseFile } from "../context/CourseFileContext";
 import DepartmentDropdown from "../dropdowns/DepartmentDropdown";
 import SemesterDropdown from "../dropdowns/SemesterDropdown";
 import CourseDropdown from "../dropdowns/CourseDropdown";
-import ErrorMessage from "../ui/ErrorMessage";
-import SuccessMessage from "../ui/SuccessMessage";
-import Loader from "../ui/Loader";
-import {
-  fetchOfferedCourses,
-  fetchCoursesByDepartmentAndSemester,
-} from "../services/courseService";
+import { fetchCoursesByDepartmentAndSemester } from "../services/courseService";
 import { capitalizeFirstLetter } from "../utils";
 import { motion, AnimatePresence } from "framer-motion";
-import { Button } from "antd";
-import { EyeOutlined } from "@ant-design/icons";
 import { useSession } from "next-auth/react";
+import {
+  notifyError,
+  notifyWarning,
+  notifyInfo,
+} from "../ui/notifications/notify"; // Import notification functions
+import { semesterOptions } from "../config/semesterOptions";
 
 const DynamicForm = () => {
+  const { data: session } = useSession();
+  const userId = session?.user?.id;
+  const facultyEmail = session?.user?.email;
 
-  const session = useSession()
-  const userId = session?.data?.user?.id
   const {
     selectedDepartment,
     setSelectedDepartment,
@@ -34,148 +33,131 @@ const DynamicForm = () => {
     courseFileName,
     setCourseFileName,
     setTableData,
-    stateLoaded, // Add stateLoaded from context
+    stateLoaded,
+    loading,
+    setLoading, // Ensure this is available in context
   } = useCourseFile();
 
-  // If state is not loaded yet, don't render the form
-  if (!stateLoaded) {
-    return null; // Or render a loading indicator
-  }
-
-  const [loading, setLoading] = React.useState(false);
-  const [errorMessage, setErrorMessage] = React.useState("");
-  const [successMessage, setSuccessMessage] = React.useState([]);
   const [semesters, setSemesters] = React.useState([]);
   const [courses, setCourses] = React.useState([]);
 
   /**
-   * Fetch semesters based on selected department.
+   * Step 1: Initialize semesters based on a static list.
+   * Populates the semester dropdown when a department is selected.
    */
   useEffect(() => {
     if (!stateLoaded) return; // Wait until state is loaded
 
-    const initializeSemesters = async () => {
-      if (selectedDepartment) {
-        setLoading(true);
-        setErrorMessage("");
-        try {
-          const data = await fetchOfferedCourses();
-          const semesterKeys = Object.keys(data).filter((semesterKey) => {
-            // Check if any course in the semester belongs to the selected department
-            return data[semesterKey].some(
-              (course) => course["Dedicated department"] === selectedDepartment,
-            );
-          });
-          const formattedSemesters = semesterKeys.map((semesterKey) =>
-            formatSemesterName(semesterKey),
-          );
-          setSemesters(formattedSemesters);
-          setSuccessMessage([]);
-        } catch (error) {
-          console.error("❌ Error fetching semesters:", error);
-          setErrorMessage("Failed to fetch semesters. Please try again later.");
-        } finally {
-          setLoading(false);
-        }
-      } else {
-        // Reset semesters if department is not selected
-        setSemesters([]);
-      }
-    };
-
-    initializeSemesters();
+    if (selectedDepartment) {
+      setSemesters(semesterOptions);
+    } else {
+      setSemesters([]);
+    }
   }, [selectedDepartment, stateLoaded]);
 
   /**
-   * Fetch courses based on selected department and semester.
+   * Step 2: Fetch courses based on selected department, semester, year, and faculty email.
+   * Automatically triggered when selectedSemester changes.
    */
   useEffect(() => {
     if (!stateLoaded) return; // Wait until state is loaded
 
     const initializeCourses = async () => {
-      if (selectedDepartment && selectedSemester) {
+      if (selectedDepartment && selectedSemester && facultyEmail) {
         setLoading(true);
-        setErrorMessage("");
         try {
+          const [semesterPart, yearPart] = selectedSemester.split("-"); // e.g., "Fall-2024" -> ["Fall", "2024"]
+
+          // Validate semester and year parts
+          if (!semesterPart || !yearPart) {
+            throw new Error(
+              "Invalid semester format. Expected format: 'Fall-2024'",
+            );
+          }
+
+          // Fetch courses assigned to the faculty member
           const fetchedCourses = await fetchCoursesByDepartmentAndSemester(
             selectedDepartment,
-            selectedSemester,
+            semesterPart,
+            yearPart,
+            facultyEmail,
           );
+
+          console.log("Fetched Courses:", fetchedCourses);
+
+          if (fetchedCourses.length === 0) {
+            notifyInfo("No courses found for the selected criteria.");
+          }
+
           setCourses(fetchedCourses);
-          setSuccessMessage([]);
         } catch (error) {
           console.error("❌ Error fetching courses:", error);
-          setErrorMessage("Failed to fetch courses. Please try again later.");
+          notifyError(
+            error.message || "Failed to fetch courses. Please try again later.",
+          );
         } finally {
           setLoading(false);
         }
       } else {
-        // Reset courses if semester is not selected
+        // Reset courses if semester or faculty email is not available
         setCourses([]);
       }
     };
 
     initializeCourses();
-  }, [selectedDepartment, selectedSemester, stateLoaded]);
+  }, [
+    selectedDepartment,
+    selectedSemester,
+    facultyEmail,
+    stateLoaded,
+    setLoading,
+  ]);
 
   /**
-   * Handles form submission to generate and fetch course file data.
+   * Step 3: Automatically trigger submission when a course is selected.
    */
-  const handleSubmit = async () => {
-    let errorMessages = [];
-    if (!selectedDepartment) errorMessages.push("Department is required.");
-    if (!selectedSemester) errorMessages.push("Semester is required.");
-    if (!selectedCourse) errorMessages.push("Course is required.");
+  useEffect(() => {
+    const handleAutoSubmit = async () => {
+      if (selectedCourse) {
+        setLoading(true);
+        try {
+          // Fetch course file data
+          const metadata = await fetchCourseFileData(selectedCourse);
 
-    if (errorMessages.length > 0) {
-      setErrorMessage(errorMessages.join(" "));
-      setSuccessMessage([]);
-      return;
-    }
-
-    setLoading(true);
-    setErrorMessage("");
-    setSuccessMessage([]);
-
-    try {
-      // Attempt API1: Fetch course file metadata
-      const metadata = await fetchCourseFileData(selectedCourse);
-
-      if (metadata) {
-        // API1 succeeded, set the table data
-        setCourseFileName(selectedCourse);
-        setTableData(metadata);
-        setSuccessMessage(["Course file data fetched successfully!"]);
-      } else {
-        // API1 returned no data, proceed to API2
-        await createCourseFile(selectedCourse);
-        // After creation, fetch the metadata again
-        const newMetadata = await fetchCourseFileData(selectedCourse);
-        if (newMetadata) {
-          setCourseFileName(selectedCourse);
-          setTableData(newMetadata);
-          setSuccessMessage([
-            "Course file created and data fetched successfully!",
-          ]);
-        } else {
-          throw new Error("Failed to fetch course file data after creation.");
+          if (metadata) {
+            // API1 succeeded, set the table data
+            setCourseFileName(selectedCourse);
+            setTableData(metadata);
+            notifyInfo("Course file data fetched successfully!");
+          } else {
+            // API1 returned no data, proceed to API2
+            await createCourseFile(selectedCourse);
+            // After creation, fetch the metadata again
+            const newMetadata = await fetchCourseFileData(selectedCourse);
+            if (newMetadata) {
+              setCourseFileName(selectedCourse);
+              setTableData(newMetadata);
+              notifyInfo("Course file created and data fetched successfully!");
+            } else {
+              throw new Error(
+                "Failed to fetch course file data after creation.",
+              );
+            }
+          }
+        } catch (error) {
+          console.error("❌ Error during automatic submission:", error);
+          notifyError(error.message || "An unexpected error occurred.");
+        } finally {
+          setLoading(false);
         }
       }
+    };
 
-      // Auto-clear success message after 3 seconds
-      setTimeout(() => {
-        setSuccessMessage([]);
-      }, 3000);
-    } catch (error) {
-      console.error("❌ Error during form submission:", error);
-      setErrorMessage(error.message || "An unexpected error occurred.");
-    } finally {
-      setLoading(false);
-    }
-  };
+    handleAutoSubmit();
+  }, [selectedCourse, setLoading, setCourseFileName, setTableData]);
 
   /**
-   * Fetches course file data by name (API1).
+   * Step 4: Fetches course file data by name (API1).
    *
    * @param {string} fileName - The name of the course file to fetch.
    * @returns {Promise<Object|null>} The fetched course file data or null if not found.
@@ -204,23 +186,20 @@ const DynamicForm = () => {
   };
 
   /**
-   * Creates/upload a new course file (API2).
+   * Step 5: Creates/upload a new course file (API2).
    *
    * @param {string} fileName - The name of the course file to create.
    * @returns {Promise<void>} Resolves when creation is successful.
    */
   const createCourseFile = async (fileName) => {
     try {
-      const response = await fetch(
-        `/api/course/create`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ courseFileName: fileName, userId }), // Adjust payload as needed
+      const response = await fetch(`/api/course/create`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
         },
-      );
+        body: JSON.stringify({ courseFileName: fileName, userId }), // Adjust payload as needed
+      });
 
       if (!response.ok) {
         console.error("❌ Error creating course file.");
@@ -231,128 +210,89 @@ const DynamicForm = () => {
     }
   };
 
-  /**
-   * Formats semester names to display as "Fall-2024", "Spring-2023", etc.
-   *
-   * @param {string} semesterKey - The raw semester key from JSON (e.g., "fall-24").
-   * @returns {string} The formatted semester name.
-   */
-  const formatSemesterName = (semesterKey) => {
-    const [season, yearSuffix] = semesterKey.split("-");
-    const year =
-      parseInt(yearSuffix, 10) >= 50 ? `19${yearSuffix}` : `20${yearSuffix}`;
-    return `${capitalizeFirstLetter(season)}-${year}`;
-  };
-
   return (
     <div className="w-full bg-transparent">
-      {/* Success Message */}
-      {successMessage.length > 0 && (
-        <SuccessMessage message={successMessage.join(" ")} />
-      )}
-
-      {/* Error Message */}
-      {errorMessage && <ErrorMessage message={errorMessage} />}
-
       {/* Form Fields with Framer Motion Animations */}
       <AnimatePresence>
-        <motion.div
-          className="flex flex-wrap justify-center"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -20 }}
-          transition={{ duration: 0.5 }}
-        >
-          {/* Department Dropdown */}
+        {!loading && (
           <motion.div
-            className="w-full sm:w-1/2 md:w-1/4 p-2"
+            className="flex flex-wrap justify-center"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.5 }}
           >
-            <DepartmentDropdown
-              selectedDepartment={selectedDepartment}
-              onSelectDepartment={setSelectedDepartment}
-            />
-            {!selectedDepartment && errorMessage.includes("Department") && (
-              <p className="text-red-500 text-sm mt-1">
-                Please select a department.
-              </p>
+            {/* Department Dropdown */}
+            <motion.div
+              className="w-full sm:w-1/2 md:w-1/4 p-2"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.5 }}
+            >
+              <DepartmentDropdown
+                selectedDepartment={selectedDepartment}
+                onSelectDepartment={setSelectedDepartment}
+                disabled={loading}
+              />
+            </motion.div>
+
+            {/* Semester Dropdown */}
+            {selectedDepartment && (
+              <motion.div
+                className="w-full sm:w-1/2 md:w-1/4 p-2"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.5 }}
+              >
+                <SemesterDropdown
+                  semesters={semesters}
+                  selectedSemester={selectedSemester}
+                  onSelectSemester={setSelectedSemester}
+                  disabled={loading}
+                />
+              </motion.div>
+            )}
+
+            {/* Course Dropdown */}
+            {selectedSemester && (
+              <motion.div
+                className="w-full sm:w-1/2 md:w-1/4 p-2"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.5 }}
+              >
+                <CourseDropdown
+                  courses={courses}
+                  selectedCourse={selectedCourse}
+                  onSelectCourse={setSelectedCourse}
+                  disabled={loading || courses.length === 0}
+                />
+              </motion.div>
             )}
           </motion.div>
-
-          {/* Semester Dropdown */}
-          {selectedDepartment && (
-            <motion.div
-              className="w-full sm:w-1/2 md:w-1/4 p-2"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.5 }}
-            >
-              <SemesterDropdown
-                semesters={semesters}
-                selectedSemester={selectedSemester}
-                onSelectSemester={setSelectedSemester}
-              />
-              {!selectedSemester && errorMessage.includes("Semester") && (
-                <p className="text-red-500 text-sm mt-1">
-                  Please select a semester.
-                </p>
-              )}
-            </motion.div>
-          )}
-
-          {/* Course Dropdown */}
-          {selectedSemester && (
-            <motion.div
-              className="w-full sm:w-1/2 md:w-1/4 p-2"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.5 }}
-            >
-              <CourseDropdown
-                courses={courses}
-                selectedCourse={selectedCourse}
-                onSelectCourse={setSelectedCourse}
-              />
-              {!selectedCourse && errorMessage.includes("Course") && (
-                <p className="text-red-500 text-sm mt-1">
-                  Please select a course.
-                </p>
-              )}
-            </motion.div>
-          )}
-        </motion.div>
+        )}
       </AnimatePresence>
 
-      {/* Show Button aligned below the form fields */}
-      {selectedDepartment && selectedSemester && selectedCourse && (
-        <AnimatePresence>
+      {/* Disable the form while loading */}
+      <AnimatePresence>
+        {loading && (
           <motion.div
-            className="flex justify-center mt-4"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.5 }}
+            className="fixed inset-0 bg-gray-200 bg-opacity-50 flex justify-center items-center z-50"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
           >
-            <Button
-              type="primary"
-              onClick={handleSubmit}
-              loading={loading}
-              disabled={!selectedCourse || loading}
-              className="w-32 flex items-center justify-center"
-              icon={!loading && <EyeOutlined />}
-            >
-              Show
-            </Button>
+            {/* Optional: Add a spinner or any loader if desired */}
+            <div className="text-xl font-semibold text-gray-700">
+              Loading...
+            </div>
           </motion.div>
-        </AnimatePresence>
-      )}
-
-      
+        )}
+      </AnimatePresence>
     </div>
   );
 };
