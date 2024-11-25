@@ -85,8 +85,8 @@ services:
     container_name: nginx_server
     restart: unless-stopped                                # Restart unless the container is explicitly stopped
     ports:
-      - "80:80"                                            # Expose HTTP port
-      - "443:443"                                          # Expose HTTPS port
+      - "4000:80"                                          # Expose HTTP port on host port 4000
+      - "4443:443"                                         # Expose HTTPS port on host port 4443 (optional)
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf         # Mount Nginx configuration
       - ./ssl:/etc/nginx/ssl                              # Mount existing SSL certificates
