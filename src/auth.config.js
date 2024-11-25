@@ -1,3 +1,10 @@
+// File: /src/auth.config.js
+
+/**
+ * @fileoverview Configuration for NextAuth.js authentication.
+ * Integrates dynamic authorization logic while preserving core functionalities.
+ */
+
 import db from "../prisma";
 import { oauthVerifyEmailAction } from "./actions/oauth-verify-email-action";
 import Google from "next-auth/providers/google";
@@ -5,7 +12,10 @@ import Github from "next-auth/providers/github";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import { findAdminUserEmailAddresses } from "./resources/admin-user-email-address-queries";
 import { USER_ROLES } from "./lib/constants";
+import { authorizeEmail } from "./lib/authorization";
+
 // import { changeUserRoleAction } from "./actions/change-user-role-action";
+
 export const authConfig = {
   adapter: {
     ...PrismaAdapter(db),
@@ -33,7 +43,7 @@ export const authConfig = {
 
   session: { strategy: "jwt" },
   secret: process.env.AUTH_SECRET,
-  pages: { signIn: "/auth/signin" },
+  pages: { signIn: "/auth/signin", error: "/auth/error" },
   callbacks: {
     authorized({ auth, request }) {
       const { nextUrl } = request;
@@ -63,11 +73,11 @@ export const authConfig = {
       if (user?.role) token.role = user.role;
 
       {
-        /**Taking care of the care where an OAuth user 
-        creates An account for the first time and they should be "admin"
+        /**Taking care of the case where an OAuth user 
+        creates an account for the first time and they should be "admin"
         Fixed by overriding 'createUser' function in Prisma Adapter  */
       }
-      //updating role
+      // Updating role
       // if (
       //   user?.email &&
       //   process.env.ADMIN_EMAIL_ADDRESS?.toLowerCase() === user.email.toLowerCase()
@@ -82,25 +92,50 @@ export const authConfig = {
       session.user.role = token.role;
       return session;
     },
-    signIn({ user, account, profile }) {
-      if (account?.provider === "google") {
+    /**
+     * Controls user sign-in flow based on provider, email verification,
+     * and authorization criteria (specific emails and domains).
+     *
+     * @param {Object} param0 - Destructured parameters.
+     * @param {Object} param0.user - The user object.
+     * @param {Object} param0.account - The account object.
+     * @param {Object} param0.profile - The profile object.
+     * @returns {boolean} True to allow sign-in, false to deny.
+     */
+    signIn: async ({ user, account, profile }) => {
+      // Define allowed emails and domains (from environment variables)
+      const ALLOWED_EMAILS = process.env.ALLOWED_EMAILS
+        ? process.env.ALLOWED_EMAILS.split(",").map((email) => email.trim())
+        : [];
+
+      const ALLOWED_DOMAINS = process.env.ALLOWED_DOMAINS
+        ? process.env.ALLOWED_DOMAINS.split(",").map((domain) => domain.trim())
+        : [];
+
+      // Authorize the user's email
+      const isAuthorized = await authorizeEmail(user.email);
+
+      if (account?.provider === "google" && isAuthorized) {
         return !!profile?.email_verified;
       }
-      if (account?.provider === "github") {
+
+      if (account?.provider === "github" && isAuthorized) {
         return true;
       }
+
       if (account?.provider === "credentials") {
-        if (user.emailVerified) {
+        if (user.emailVerified && isAuthorized) {
           return true;
         }
       }
+
       return false;
     },
   },
   events: {
     async linkAccount({ user, account }) {
       if (["google", "github"].includes(account.provider)) {
-        //verify user email
+        // Verify user email
         if (user.email) await oauthVerifyEmailAction(user.email);
       }
     },

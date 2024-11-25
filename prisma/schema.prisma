@@ -161,3 +161,15 @@ model FinalExam {
   courseFilesId String      @unique @db.ObjectId // UNIQUE for 1-to-1 relation
   courseFiles   CourseFiles @relation(fields: [courseFilesId], references: [id])
 }
+
+
+
+model AuthorizedEmail {
+  id    String @id @default(auto()) @map("_id") @db.ObjectId
+  email String @unique
+}
+
+model AuthorizedDomain {
+  id     String @id @default(auto()) @map("_id") @db.ObjectId
+  domain String @unique
+}

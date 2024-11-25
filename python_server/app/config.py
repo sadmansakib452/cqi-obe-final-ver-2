@@ -1,7 +1,7 @@
 # File: python_server/app/config.py
 
-from pydantic_settings import BaseSettings
-# from pydantic import BaseSettings
+# from pydantic_settings import BaseSettings
+from pydantic import BaseSettings
 
 import logging
 

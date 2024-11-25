@@ -12,6 +12,7 @@ import React, {
 } from "react";
 import PropTypes from "prop-types";
 import { loadState, saveState } from "../utils/manageCourseFileState";
+import { useSession, signOut } from "next-auth/react"; // Imported next-auth hooks
 
 // Create the context
 const CourseFileContext = createContext();
@@ -34,6 +35,8 @@ export const CourseFileProvider = ({ children }) => {
 
   const [stateLoaded, setStateLoaded] = useState(false);
   const [loading, setLoading] = useState(false); // Add loading state
+
+  const { status } = useSession(); // Access authentication status
 
   // Load state from localStorage on mount
   useEffect(() => {
@@ -102,6 +105,57 @@ export const CourseFileProvider = ({ children }) => {
     setState((prev) => ({ ...prev, tableData: value }));
   }, []);
 
+  // Implement logoutHandler
+  const logoutHandler = useCallback(async () => {
+    try {
+      // Clear specific localStorage items
+      localStorage.removeItem("selectedDepartment");
+      localStorage.removeItem("selectedSemester");
+      localStorage.removeItem("selectedCourse");
+      localStorage.removeItem("courseFileName");
+      localStorage.removeItem("tableData");
+
+      // Reset state
+      setState({
+        selectedDepartment: "",
+        selectedSemester: "",
+        selectedCourse: "",
+        courseFileName: "",
+        tableData: null,
+      });
+
+      // Sign out the user
+      await signOut({ redirect: true });
+    } catch (error) {
+      console.error("Logout error:", error);
+    }
+  }, []);
+
+  // Clear state and localStorage if the user becomes unauthenticated
+  useEffect(() => {
+    if (status === "unauthenticated") {
+      try {
+        // Clear specific localStorage items
+        localStorage.removeItem("selectedDepartment");
+        localStorage.removeItem("selectedSemester");
+        localStorage.removeItem("selectedCourse");
+        localStorage.removeItem("courseFileName");
+        localStorage.removeItem("tableData");
+
+        // Reset state
+        setState({
+          selectedDepartment: "",
+          selectedSemester: "",
+          selectedCourse: "",
+          courseFileName: "",
+          tableData: null,
+        });
+      } catch (error) {
+        console.error("Error clearing state on unauthenticated status:", error);
+      }
+    }
+  }, [status]);
+
   // Memoize the context value to prevent unnecessary re-renders
   const value = useMemo(() => {
     return {
@@ -114,6 +168,7 @@ export const CourseFileProvider = ({ children }) => {
       setCourseFileName,
       setTableData,
       stateLoaded,
+      logoutHandler, // Expose logoutHandler
     };
   }, [
     state,
@@ -124,6 +179,7 @@ export const CourseFileProvider = ({ children }) => {
     setCourseFileName,
     setTableData,
     stateLoaded,
+    logoutHandler,
   ]);
 
   // All hooks are called above. Now, conditionally render children.

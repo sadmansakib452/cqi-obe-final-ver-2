@@ -16,6 +16,14 @@ import { getSemesterNumber } from "../utils/semesterUtils";
 const useAPI = true;
 
 /**
+ * Base URL for the File Service API.
+ * Should be defined in environment variables for flexibility.
+ * Example: FILE_SERVICE_API_URL=http://127.0.0.1:8000
+ */
+const FILE_SERVICE_API_URL =
+  process.env.FILE_SERVICE_API_URL || "http://127.0.0.1:8000";
+
+/**
  * Fetches offered courses based on department, semester, and year.
  *
  * @param {string} department - The selected department (e.g., "CSE").
@@ -36,7 +44,7 @@ export const fetchOfferedCourses = async (department, semester, year) => {
     return null;
   }
 
-  const apiUrl = `http://127.0.0.1:8000/offeredCourses?department=${encodeURIComponent(
+  const apiUrl = `${FILE_SERVICE_API_URL}/offeredCourses?department=${encodeURIComponent(
     department,
   )}&semester=${semesterNumber}&year=${encodeURIComponent(year)}`;
 
@@ -71,14 +79,14 @@ export const fetchCoursesByDepartmentAndSemester = async (
 ) => {
   try {
     const data = await fetchOfferedCourses(department, semester, year);
-    
+
     if (!data || !data.courses) {
       return [];
     }
 
     // Filter courses assigned to the faculty member
     const filteredCourses = data.courses.filter(
-      (course) => course.email === "mcctuhin@ewubd.edu",
+      (course) => course.email === facultyEmail,
     );
     console.log("filteredCourses data", filteredCourses, facultyEmail);
 
@@ -104,13 +112,13 @@ export const fetchCoursesByDepartmentAndSemester = async (
  * @returns {Array<Object>} Array of unique course objects.
  */
 const removeDuplicateCourses = (courses) => {
-  const seen = new Set();
+  const seen = {}; // Using an object to track seen identifiers
   const uniqueCourses = [];
 
   courses.forEach((course) => {
     const identifier = `${course.course_code}-${course.section}`;
-    if (!seen.has(identifier)) {
-      seen.add(identifier);
+    if (!seen[identifier]) {
+      seen[identifier] = true;
       uniqueCourses.push(course);
     }
   });
@@ -133,6 +141,14 @@ export const generateCourseFileName = (course, semester, year) => {
   const sectionNumber = Number.isInteger(course.section)
     ? course.section
     : parseInt(course.section, 10);
+
+  // Handle NaN sectionNumber
+  if (isNaN(sectionNumber)) {
+    console.warn(
+      `Invalid section number for course ${course.course_code}. Defaulting to 0.`,
+    );
+    return `${year}.${semesterNumber}.${course.course_code}-0`;
+  }
 
   const courseFileName = `${year}.${semesterNumber}.${course.course_code}-${sectionNumber}`;
 

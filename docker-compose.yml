@@ -1,119 +1,112 @@
-# File: docker-compose.yml
+version: '3.8'  # Specify the Compose file format version
 
 services:
+  # =============================================================
   # MinIO Service
+  # =============================================================
   minio:
     image: minio/minio:latest
     container_name: minio
     environment:
-      - MINIO_ROOT_USER=${MINIO_ROOT_USER}
-      - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD}
-      - MINIO_ADDRESS=:9000
-      - MINIO_CONSOLE_ADDRESS=:9001
-    command: server /data
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}                # MinIO root username
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}        # MinIO root password
+      MINIO_ADDRESS: ":9000"                              # MinIO server address
+      MINIO_CONSOLE_ADDRESS: ":9001"                      # MinIO console address
+    command: server /data                                 # Command to start MinIO server
     ports:
-      - "9000:9000"
-      - "9001:9001"
+      - "9000:9000"                                        # Expose MinIO server port
+      - "9001:9001"                                        # Expose MinIO console port
     volumes:
-      - minio-data:/data
-    restart: always
+      - minio-data:/data                                   # Persist MinIO data
+    restart: always                                       # Always restart the container on failure
     networks:
-      - app-network
+      - app-network                                       # Connect to the app network
 
+  # =============================================================
   # Next.js Application Service
+  # =============================================================
   app:
     build:
-      context: .
-      dockerfile: Dockerfile
+      context: .                                          # Build context is the current directory
+      dockerfile: Dockerfile                              # Dockerfile path
     container_name: nextjs_app
     environment:
-      - DATABASE_URL=${DATABASE_URL}
-      - AUTH_SECRET=${AUTH_SECRET}
-      - AUTH_URL=${AUTH_URL}
-      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
-      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
-      - GITHUB_CLIENT_ID=${GITHUB_CLIENT_ID}
-      - GITHUB_CLIENT_SECRET=${GITHUB_CLIENT_SECRET}
-      - NODEMAILER_GOOGLE_SMTP_USER=${NODEMAILER_GOOGLE_SMTP_USER}
-      - NODEMAILER_GOOGLE_ACCESS_TOKEN=${NODEMAILER_GOOGLE_ACCESS_TOKEN}
-      - NODEMAILER_GOOGLE_REFRESH_TOKEN=${NODEMAILER_GOOGLE_REFRESH_TOKEN}
-      - NEXT_PUBLIC_MINIO_URL=${MINIO_ENDPOINT}
-      - NEXT_PUBLIC_MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY}
-      - NEXT_PUBLIC_MINIO_SECRET_KEY=${MINIO_SECRET_KEY}
+      DATABASE_URL: ${DATABASE_URL}                       # Database connection URL
+      AUTH_SECRET: ${AUTH_SECRET}                         # Authentication secret key
+      AUTH_URL: ${AUTH_URL}                               # Authentication URL
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}               # Google OAuth Client ID
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}       # Google OAuth Client Secret
+      GITHUB_CLIENT_ID: ${GITHUB_CLIENT_ID}               # GitHub OAuth Client ID
+      GITHUB_CLIENT_SECRET: ${GITHUB_CLIENT_SECRET}       # GitHub OAuth Client Secret
+      NODEMAILER_GOOGLE_SMTP_USER: ${NODEMAILER_GOOGLE_SMTP_USER}     # Nodemailer SMTP user
+      NODEMAILER_GOOGLE_ACCESS_TOKEN: ${NODEMAILER_GOOGLE_ACCESS_TOKEN} # Nodemailer access token
+      NODEMAILER_GOOGLE_REFRESH_TOKEN: ${NODEMAILER_GOOGLE_REFRESH_TOKEN} # Nodemailer refresh token
+      NEXT_PUBLIC_MINIO_URL: ${MINIO_ENDPOINT}            # Public URL for MinIO
+      NEXT_PUBLIC_MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY}   # MinIO access key
+      NEXT_PUBLIC_MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}   # MinIO secret key
     ports:
-      - "3000:3000"
+      - "3000:3000"                                        # Expose Next.js application port
     volumes:
-      - ./data:/app/data
+      - ./data:/app/data                                   # Persist application data
     depends_on:
-      - minio
-    restart: always
+      - minio                                              # Ensure MinIO is running before the app
+    restart: always                                       # Always restart the container on failure
     networks:
-      - app-network
+      - app-network                                       # Connect to the app network
 
+  # =============================================================
   # Python Server Service
+  # =============================================================
   python_server:
     build:
-      context: ./python_server       # Build context pointing to Python server directory
-      dockerfile: Dockerfile         # Dockerfile for Python server
+      context: ./python_server                             # Build context pointing to Python server directory
+      dockerfile: Dockerfile                              # Dockerfile for Python server
     container_name: python_server
     env_file:
-      - ./python_server/.env        # Reference to Python server's .env file
+      - ./python_server/.env                              # Reference to Python server's .env file
     environment:
-      - PYTHON_ENV=production        # Additional environment variables if needed
+      PYTHON_ENV: production                              # Set Python environment to production
     ports:
-      - "3005:3005"                  # Expose port 3005
+      - "3005:3005"                                        # Expose Python server port
     volumes:
-      - ./python_server:/app         # Mount code for live updates (useful for development)
+      - ./python_server:/app                               # Mount Python server code for live updates
     depends_on:
-      - minio                        # Ensure MinIO is up before Python server
-      - app                          # Ensure Next.js app is up before Python server
-    restart: always
+      - minio                                              # Ensure MinIO is running before the Python server
+      - app                                                # Ensure Next.js app is running before the Python server
+    restart: always                                       # Always restart the container on failure
     networks:
-      - app-network                  # Connect to the same network for inter-service communication
+      - app-network                                       # Connect to the app network
 
+  # =============================================================
   # Nginx Service
+  # =============================================================
   nginx:
-    container_name: nginx_server
-    restart: unless-stopped
     image: nginx:latest
+    container_name: nginx_server
+    restart: unless-stopped                                # Restart unless the container is explicitly stopped
     ports:
-      - "80:80"
-      - "443:443"
+      - "80:80"                                            # Expose HTTP port
+      - "443:443"                                          # Expose HTTPS port
     volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf   # Mount Nginx configuration
-      - ./certbot/conf:/etc/letsencrypt            # SSL certificates folder
-      - ./certbot/www:/var/www/certbot             # Certbot challenge webroot
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf         # Mount Nginx configuration
+      - ./ssl:/etc/nginx/ssl                              # Mount existing SSL certificates
     depends_on:
       - app
-      - python_server                                # Ensure Python server is up before Nginx
+      - python_server                                      # Ensure dependencies are running before Nginx
+      - minio                                               # Ensure MinIO is running before Nginx
     networks:
-      - app-network                                  # Connect to the same network
+      - app-network                                       # Connect to the app network
 
-  # Certbot for SSL Certificates
-  certbot:
-    image: certbot/certbot
-    container_name: certbot
-    volumes:
-      - ./certbot/conf:/etc/letsencrypt
-      - ./certbot/www:/var/www/certbot
-    entrypoint: /bin/sh -c
-    command: |
-      if [ ! -f /etc/letsencrypt/live/sadman-workbench.zapto.org/fullchain.pem ]; then
-        certbot certonly --webroot -w /var/www/certbot --email sadmansakib452@gmail.com -d sadman-workbench.zapto.org --agree-tos --non-interactive
-      fi
-      while :; do
-        certbot renew --webroot -w /var/www/certbot --post-hook "nginx -s reload"
-        sleep 12h
-      done
-    depends_on:
-      - nginx
-    networks:
-      - app-network                                  # Connect to the same network
-
+# =============================================================
+# Volumes
+# =============================================================
 volumes:
   minio-data:
-    driver: local
+    driver: local                                         # Use local driver for MinIO data persistence
 
+# =============================================================
+# Networks
+# =============================================================
 networks:
   app-network:
-    driver: bridge
+    driver: bridge                                        # Use bridge network driver for inter-service communication

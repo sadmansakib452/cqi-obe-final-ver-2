@@ -1,13 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { Button } from "@/components/ui/button";
-import {
-  SiGithub,
-  SiGithubHex,
-  SiGoogle,
-  SiGoogleHex,
-} from "@icons-pack/react-simple-icons";
+import { SiGoogle } from "@icons-pack/react-simple-icons";
 import { oauthSigninAction } from "@/actions/oauth-signin-action";
 import { useSearchParams } from "next/navigation";
 
@@ -20,7 +14,7 @@ export const OauthSigninButton = ({ signup }) => {
   useEffect(() => {
     if (!error) return;
     if (error === "OAuthAccountNotLinked") {
-      setErrorMessage("This account is already in use. Please sign in");
+      setErrorMessage("This account is already in use. Please sign in.");
     } else {
       setErrorMessage("An error occurred. Please try again.");
     }
@@ -35,47 +29,18 @@ export const OauthSigninButton = ({ signup }) => {
   };
   const text = signup ? "Sign up" : "Sign in";
   return (
-    <div className="max-w-[400px]">
-      <Button
-        variant="secondary"
-        className="w-full"
-        onClick={clickHandler.bind(null, "google")}
+    <div className="space-y-4">
+      <button
+        className="w-full flex items-center justify-center bg-[#1C4370] hover:bg-[#16345A] text-white py-3 rounded-md transition duration-300 focus:outline-none focus:ring-4 focus:ring-[#1C4370]/50"
+        onClick={() => clickHandler("google")}
       >
-        <SiGoogle color={SiGoogleHex} className="mr-2" />
+        <SiGoogle className="mr-2" />
         {text} with Google
-      </Button>
+      </button>
 
-      <Button
-        variant="secondary"
-        className="mt-2 w-full"
-        onClick={clickHandler.bind(null, "github")}
-      >
-        <SiGithub color={SiGithubHex} className="mr-2" />
-        {text} with Github
-      </Button>
       {errorMessage && (
-        <p className="mt-2 text-sm font-medium text-destructive">
-          {errorMessage}
-        </p>
+        <p className="mt-2 text-sm font-medium text-red-600">{errorMessage}</p>
       )}
-    </div>
-  );
-};
-
-export const OAuthSigninButtonsSkeleton = ({ signup }) => {
-  const text = signup ? "Sign up" : "Sign in";
-
-  return (
-    <div className="max-w-[400px]">
-      <Button variant="secondary" className="w-full">
-        <SiGoogle color={SiGoogleHex} className="mr-2" />
-        {text} with Google
-      </Button>
-
-      <Button variant="secondary" className="mt-2 w-full">
-        <SiGithub color={SiGithubHex} className="mr-2" />
-        {text} with Github
-      </Button>
     </div>
   );
 };

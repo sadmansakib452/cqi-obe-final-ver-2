@@ -4,7 +4,7 @@ import Link from "next/link";
 import { LayoutGrid, LogOut, User, MoreVertical } from "lucide-react"; // Use MoreVertical for vertical three-dot icon
 import { Menu } from "@headlessui/react"; // Import Headless UI Menu
 import { useSession } from "next-auth/react";
-import { useCourseFile } from "@/context/CourseFileContext";
+import { useCourseFile } from "@/app/dashboard/courseFiles/_components/context/CourseFileContext";
 
 export function UserNav() {
   const session = useSession();

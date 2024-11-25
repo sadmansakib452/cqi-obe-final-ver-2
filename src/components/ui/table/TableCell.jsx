@@ -13,6 +13,6 @@ export default function TableCell({ value, isAction }) {
       )}
     </td>
   );
-};
+}
 
 

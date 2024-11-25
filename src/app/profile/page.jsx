@@ -34,7 +34,7 @@ const ProfilePage = async () => {
         </div>
         <div className="my-4 h-1 bg-muted" />
 
-        {!!session?.user ? <SignedIn user={session.user} /> : <SignedOut />}
+        {session?.user ? <SignedIn user={session.user} /> : <SignedOut />}
       </div>
     </main>
   );

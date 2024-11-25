@@ -5,7 +5,7 @@ import "./globals.css";
 import { Navbar } from "@/components/navbar";
 import { Providers } from "@/components/providers";
 import { ThemeProvider } from "../providers/theme-provider";
-import { CourseFileProvider } from "@/context/CourseFileContext"; // Import CourseFileProvider
+import { CourseFileProvider } from "./dashboard/courseFiles/_components/context/CourseFileContext";
 
 const inter = Inter({ subsets: ["latin"] });
 
