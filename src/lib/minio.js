@@ -1,4 +1,3 @@
-
 // import { S3Client } from "@aws-sdk/client-s3";
 
 // // Initialize MinIO (S3 compatible) client using AWS SDK v3
@@ -15,14 +14,13 @@
 
 // export default s3;
 
-
 // ----------------------local server--------------------------
 
 import { S3Client } from "@aws-sdk/client-s3";
 
 // Initialize MinIO (S3 compatible) client using AWS SDK v3
 const s3 = new S3Client({
-  endpoint: process.env.MINIO_ENDPOINT || "http://103.147.107.163:9000", // Use the public MinIO URL
+  endpoint: process.env.MINIO_ENDPOINT || "http://localhost:9000", // Use the public MinIO URL
   region: "us-east-1", // Set a region (doesn't matter for MinIO but required by AWS SDK)
   credentials: {
     accessKeyId: process.env.MINIO_ACCESS_KEY || "AdminUser123",
@@ -32,4 +30,3 @@ const s3 = new S3Client({
 });
 
 export default s3;
-

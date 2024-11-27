@@ -21,7 +21,7 @@ const useAPI = true;
  * Example: FILE_SERVICE_API_URL=http://127.0.0.1:8000
  */
 const FILE_SERVICE_API_URL =
-  process.env.FILE_SERVICE_API_URL || "http://127.0.0.1:8000";
+  process.env.FILE_SERVICE_API_URL || "http://127.0.0.1:3005";
 
 /**
  * Fetches offered courses based on department, semester, and year.

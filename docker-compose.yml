@@ -1,8 +1,8 @@
-version: '3.8'  # Specify the Compose file format version
+#version: '3.8'  # Specify the Compose file format version
 
 services:
   # =============================================================
-  # MinIO Service
+  # MinIO Service (Object Storage)
   # =============================================================
   minio:
     image: minio/minio:latest
@@ -45,7 +45,7 @@ services:
       NEXT_PUBLIC_MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY}   # MinIO access key
       NEXT_PUBLIC_MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}   # MinIO secret key
     ports:
-      - "3000:3000"                                        # Expose Next.js application port
+      - "3001:3000"                                        # Expose Next.js application port
     volumes:
       - ./data:/app/data                                   # Persist application data
     depends_on:
