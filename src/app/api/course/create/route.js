@@ -105,7 +105,7 @@ export async function POST(req) {
     } catch (minioError) {
       console.error(
         "❌ Task 2.2: Failed to create folder in MinIO:",
-        minioError.message,
+        minioError,
       );
       return new Response(
         JSON.stringify({
